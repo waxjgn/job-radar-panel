@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>打工避雷平台 · 入职前查一查</title>
+<meta name="description" content="打工避雷平台：查询公司拖欠工资、虚假招聘、押金诈骗、强制加班等避雷记录。支持按公司、城市、岗位、分类检索。">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:title" content="打工避雷平台 · 入职前查一查">
+<meta property="og:description" content="查询公司拖欠工资、虚假招聘、押金诈骗、强制加班等避雷记录。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230f172a'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%2338bdf8' font-family='sans-serif'%3E避%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="./">
+      <span class="logo">避</span>
+      <span>
+        <b>打工避雷平台</b>
+        <small id="navTagline">入职前查一查</small>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="#search">查询</a>
+      <a href="#board">风险榜</a>
+      <a href="#guides">自建部署</a>
+      <a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>入职前，先查一查</h1>
+    <p class="lead" id="heroTagline"></p>
+    <div class="notice" id="heroNotice"></div>
+    <div class="stats" id="stats"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section id="search" class="card">
+    <div class="card-head">
+      <h2>查询避雷记录</h2>
+      <span class="count" id="resultCount"></span>
+    </div>
+    <div class="searchbar">
+      <input type="search" id="q" placeholder="输入公司名 / 城市 / 岗位 / 关键词，例如：押金、社保、杭州" autocomplete="off">
+      <button type="button" id="clearBtn" class="ghost">清空</button>
+    </div>
+    <div class="filters">
+      <div class="chips" id="catChips"></div>
+      <label class="sel">
+        城市
+        <select id="citySel"><option value="">全部</option></select>
+      </label>
+      <label class="sel">
+        排序
+        <select id="sortSel">
+          <option value="risk">风险从高到低</option>
+          <option value="recent">最近提交优先</option>
+          <option value="reports">记录数最多</option>
+        </select>
+      </label>
+    </div>
+    <div id="results" class="results"></div>
+  </section>
+
+  <section id="board" class="card">
+    <div class="card-head"><h2>风险榜</h2><span class="count">按风险等级与记录数排序</span></div>
+    <div id="board-list" class="board"></div>
+  </section>
+
+  <section id="guides" class="card">
+    <div class="card-head"><h2>自己部署一套</h2><span class="count">开源，可自建</span></div>
+    <p class="muted">
+      这个站是静态演示（数据在 <code>docs/data/companies.json</code>），真正的平台是仓库里的 Flask 项目，
+      带提交举报、人机验证、内容审核、防刷限制和后台审核队列。仓库里还带一个可视化部署面板，可以图形化一键部署。
+    </p>
+    <div id="guides-list" class="guides"></div>
+    <p class="muted">
+      仓库地址：<a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">github.com/waxjgn/job-radar-panel</a>
+    </p>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p id="footNotice"></p>
+    <p class="muted">
+      内容由用户提交、平台仅作信息汇集，请自行核实后再做决定。 ·
+      本站由 GitHub Pages 免费托管 · <span id="updated"></span>
+    </p>
+  </div>
+</footer>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script src="./assets/app.js"></script>
+</body>
+</html>

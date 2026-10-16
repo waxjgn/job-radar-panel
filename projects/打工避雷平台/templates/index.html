@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ site }} · 求职避雷查询</title>
+<link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <h1>{{ site }}</h1>
+    <p class="sub">查一查再入职：拖欠工资 / 虚假招聘 / 押金诈骗 / 强制加班</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="stats">
+    <div class="stat"><b>{{ stats.companies or 0 }}</b><span>收录公司</span></div>
+    <div class="stat"><b>{{ stats.reports or 0 }}</b><span>已发布避雷</span></div>
+    <div class="stat"><b>{{ stats.pending or 0 }}</b><span>待审核</span></div>
+  </section>
+
+  <form class="searchbar" method="get" action="/">
+    <input type="search" name="q" value="{{ keyword }}" placeholder="输入公司名 / 城市 / 行业 / 关键词">
+    <button type="submit">搜索</button>
+  </form>
+
+  <section class="columns">
+    <div class="col-main">
+      <h2>避雷记录 {% if keyword %}<small>（关键词：{{ keyword }}）</small>{% endif %}</h2>
+      {% if reports %}
+        {% for r in reports %}
+        <article class="card risk-{{ r.risk_level }}">
+          <div class="card-head">
+            <h3>{{ r.company_name }}</h3>
+            <span class="tag">{{ r.category }}</span>
+            <span class="risk">风险 {{ r.risk_level }}/3</span>
+          </div>
+          <p class="title">{{ r.title }}</p>
+          <p class="body">{{ r.content }}</p>
+          {% if r.video_url %}<p class="video">视频证据：<a href="{{ r.video_url }}" rel="nofollow noopener" target="_blank">{{ r.video_url }}</a></p>{% endif %}
+          <p class="meta">{{ r.city or '城市未填' }} · {{ r.job or '岗位未填' }} · {{ r.created_at }}</p>
+        </article>
+        {% endfor %}
+      {% else %}
+        <p class="empty">没有匹配的记录。你可以成为第一个提交的人。</p>
+      {% endif %}
+    </div>
+
+    <aside class="col-side">
+      <h2>风险榜</h2>
+      <ul class="rank">
+        {% for c in companies %}
+        <li data-id="{{ c.id }}">
+          <span class="name">{{ c.name }}</span>
+          <span class="meta">{{ c.city or '' }} · {{ c.report_count }} 条</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <h2>提交避雷</h2>
+      <form id="reportForm" class="report">
+        <label>公司名称<input name="company_name" required></label>
+        <label>城市<input name="city"></label>
+        <label>岗位<input name="job"></label>
+        <label>分类
+          <select name="category">
+            <option>拖欠工资</option><option>虚假招聘</option><option>押金诈骗</option>
+            <option>强制加班</option><option>试用期社保</option><option>其他</option>
+          </select>
+        </label>
+        <label>标题<input name="title" maxlength="120" required></label>
+        <label>经过<textarea name="content" rows="4" required placeholder="至少 10 个字，写清时间、岗位、具体经过"></textarea></label>
+        <label>视频链接（可选，需在白名单域名内）
+          <input name="video_url" placeholder="https://www.bilibili.com/video/...">
+        </label>
+        <label>验证码
+          <span class="captcha"><b id="captchaQ">加载中…</b>
+          <button type="button" id="refreshCaptcha">换一题</button></span>
+          <input name="captcha" inputmode="numeric" placeholder="填答案">
+        </label>
+        <button type="submit" class="primary">提交</button>
+        <p id="reportMsg" class="msg"></p>
+      </form>
+
+      <h2>允许的视频域名</h2>
+      <ul class="allow">
+        {% for d in allowlist %}<li>{{ d }}</li>{% endfor %}
+      </ul>
+    </aside>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>内容由用户提交，平台仅提供信息汇集，请自行核实。管理入口：<a href="/admin">/admin</a></p>
+</footer>
+
+<script src="/static/js/site.js"></script>
+</body>
+</html>

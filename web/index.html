@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>打工避雷平台 · 可视化部署面板</title>
+<link rel="stylesheet" href="/css/panel.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">避</span>
+    <div>
+      <h1>打工避雷平台 · 可视化部署面板</h1>
+      <p class="sub" id="platformLine">正在读取环境信息…</p>
+    </div>
+  </div>
+  <div class="topright">
+    <div class="qstatus" id="quickStatus" title="服务状态">
+      <span class="dot warn"></span><span id="quickStatusText">读取中</span>
+    </div>
+    <button class="ghost" id="btnRefreshAll" title="重新拉取配置与状态">刷新</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- 左侧步骤导航 -->
+  <nav class="steps" id="stepNav">
+    <button class="step active" data-step="1"><b>1</b><span>项目源<small>上传 / GitHub</small></span></button>
+    <button class="step" data-step="2"><b>2</b><span>部署环境<small>5 种目标</small></span></button>
+    <button class="step" data-step="3"><b>3</b><span>可视化配置<small>域名/端口/库/安全</small></span></button>
+    <button class="step" data-step="4"><b>4</b><span>环境检测<small>依赖是否齐全</small></span></button>
+    <button class="step" data-step="5"><b>5</b><span>部署与运维<small>启动/停止/日志</small></span></button>
+    <button class="step" data-step="6"><b>6</b><span>备份与导出<small>打包下载</small></span></button>
+    <div class="steps-foot">
+      <label class="mini"><input type="checkbox" id="advancedToggle"><span>高级模式（看底层命令）</span></label>
+      <a class="mini link" href="/api/info" target="_blank" rel="noopener">查看面板信息 JSON</a>
+    </div>
+  </nav>
+
+  <!-- 右侧内容 -->
+  <main class="content">
+
+    <div class="alert hidden" id="globalAlert"></div>
+
+    <!-- ============ 1. 项目源 ============ -->
+    <section class="panel active" data-panel="1">
+      <h2>1. 选择项目来源 <span class="hint" data-tip="两种模式互斥：本地上传适合本地写好的代码；GitHub 映射适合托管在仓库并需要定时同步的代码。">?</span></h2>
+      <p class="desc">上传本地压缩包，或从 GitHub 仓库拉取代码；只能选一种。</p>
+
+      <div class="cards" id="sourceModeCards">
+        <label class="pick" data-mode="upload">
+          <input type="radio" name="source_mode" value="upload">
+          <b>本地上传模式</b>
+          <span>选择 .zip 项目压缩包，面板自动安全解压到工作目录</span>
+        </label>
+        <label class="pick" data-mode="github">
+          <input type="radio" name="source_mode" value="github">
+          <b>GitHub 仓库映射模式</b>
+          <span>填仓库地址 + 分支（+ 私有库 Token），一键拉取并支持定时同步</span>
+        </label>
+      </div>
+
+      <div class="grid two" id="uploadBlock">
+        <div class="field">
+          <label>项目压缩包（.zip）</label>
+          <input type="file" id="zipFile" accept=".zip">
+          <p class="help">只接受 .zip；面板会拒绝路径穿越、软链接与超 800MB 的解压内容。</p>
+          <button class="primary" id="btnUpload">上传并解压</button>
+        </div>
+        <div class="field">
+          <label>内置项目模板</label>
+          <select id="templateSelect"><option value="">（不套用模板）</option></select>
+          <p class="help">选「打工避雷平台」会自动填入数据库表、接口与页面代码，不用手动粘贴。</p>
+          <div class="inline">
+            <button class="ghost" id="btnTemplateInfo">查看模板内容</button>
+            <button class="ghost" id="btnTemplateApply">直接使用该模板</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid two hidden" id="githubBlock">
+        <div class="field">
+          <label>仓库地址</label>
+          <input type="text" id="ghUrl" placeholder="https://github.com/owner/repo.git">
+          <p class="help">面板用 HTTPS 归档接口拉取，不依赖本机是否安装 git。</p>
+        </div>
+        <div class="field">
+          <label>分支</label>
+          <input type="text" id="ghBranch" placeholder="main">
+          <p class="help">常见 main 或 master；填错会提示分支不存在。</p>
+        </div>
+        <div class="field">
+          <label>访问 Token（可选）</label>
+          <input type="password" id="ghToken" placeholder="私有仓库才需要">
+          <p class="help">仅保存在本机工作目录 config.json，界面回传时自动打码。</p>
+        </div>
+        <div class="field">
+          <label>仓库内子目录（可选）</label>
+          <input type="text" id="ghSubdir" placeholder="例如 backend">
+        </div>
+        <div class="field">
+          <label class="switchline"><input type="checkbox" id="ghAutoSync"><span>开启定时同步</span></label>
+          <div class="inline">
+            <input type="number" id="ghInterval" min="1" max="1440" style="width:110px">
+            <span class="unit">分钟</span>
+          </div>
+          <p class="help">开启后按间隔自动拉取仓库最新代码。</p>
+        </div>
+        <div class="field actions">
+          <button class="ghost" id="btnGhTest">测试连接</button>
+          <button class="primary" id="btnGhPull">一键拉取代码</button>
+          <button class="ghost" id="btnSyncToggle">同步状态</button>
+        </div>
+      </div>
+
+      <div class="sourcestate" id="sourceState"></div>
+    </section>
+
+    <!-- ============ 2. 部署环境 ============ -->
+    <section class="panel" data-panel="2">
+      <h2>2. 选择部署目标环境 <span class="hint" data-tip="选择后会自动加载该环境的预设模板、依赖清单与要生成的配置文件；不支持的能力会被禁用并给出说明。">?</span></h2>
+      <p class="desc">下拉切换，面板自动套用预设。</p>
+
+      <div class="field">
+        <label>部署环境</label>
+        <select id="envSelect"></select>
+        <p class="help" id="envSummary"></p>
+      </div>
+
+      <div class="grid two">
+        <div class="box">
+          <h3>依赖清单</h3>
+          <ul class="plain" id="envDeps"></ul>
+        </div>
+        <div class="box">
+          <h3>将生成的配置文件</h3>
+          <ul class="plain mono" id="envArtifacts"></ul>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>能力矩阵</h3>
+        <div class="caps" id="envCaps"></div>
+        <ul class="plain notes" id="envNotes"></ul>
+      </div>
+    </section>
+
+    <!-- ============ 3. 可视化配置 ============ -->
+    <section class="panel" data-panel="3">
+      <h2>3. 可视化配置 <span class="hint" data-tip="每个选项后面都有说明；不适用的字段会自动隐藏，保存时再做一次校验。">?</span></h2>
+      <p class="desc">域名、端口映射、数据库、白名单、安全开关、Nginx 配置。</p>
+      <div id="configGroups"></div>
+      <div class="sticky-save">
+        <button class="primary" id="btnSaveConfig">保存配置</button>
+        <button class="ghost" id="btnValidate">只校验不保存</button>
+        <span class="validmsg" id="configMsg"></span>
+      </div>
+    </section>
+
+    <!-- ============ 4. 环境检测 ============ -->
+    <section class="panel" data-panel="4">
+      <h2>4. 环境检测 <span class="hint" data-tip="绿色=正常，黄色=警告（不影响使用），红色=错误（必须处理）。">?</span></h2>
+      <p class="desc">一键检测 Python、pip、Nginx、Git、MySQL 与端口占用。</p>
+
+      <div class="inline">
+        <button class="primary" id="btnDetect">检测环境</button>
+        <button class="ghost" id="btnInstallDeps">安装依赖</button>
+        <span class="validmsg" id="detectMsg"></span>
+      </div>
+
+      <div class="detectgrid" id="detectGrid"></div>
+    </section>
+
+    <!-- ============ 5. 部署与运维 ============ -->
+    <section class="panel" data-panel="5">
+      <h2>5. 部署与服务运维 <span class="hint" data-tip="一键部署会依次执行：生成产物 → 写 .env → 检测 → 装依赖 → 建库 → 启动。">?</span></h2>
+      <p class="desc">图形化按钮，不用敲命令；进度与日志实时展示。</p>
+
+      <div class="inline wrap-btns">
+        <button class="primary big" id="btnDeploy">一键部署</button>
+        <button class="ok" id="btnStart">启动服务</button>
+        <button class="warn" id="btnRestart">重启服务</button>
+        <button class="danger" id="btnStop">停止服务</button>
+        <button class="ghost" id="btnStatus">刷新状态</button>
+        <button class="ghost" id="btnDbInit">初始化数据库</button>
+        <button class="ghost" id="btnBackupNow">一键备份</button>
+      </div>
+
+      <div class="statusrow" id="serviceStatus"></div>
+
+      <div class="progresswrap">
+        <div class="progress"><div class="bar" id="jobBar"></div></div>
+        <div class="progressmeta">
+          <span id="jobTitle">当前任务：无</span>
+          <span id="jobPercent">0%</span>
+          <span class="grow"></span>
+          <button class="ghost small" id="btnCancelJob">取消任务</button>
+        </div>
+      </div>
+
+      <div class="logpanel">
+        <div class="logbar">
+          <b>实时日志</b>
+          <label class="mini"><input type="checkbox" id="logAutoScroll" checked><span>自动滚动</span></label>
+          <select id="logFilter">
+            <option value="log">当前任务日志</option>
+            <option value="app">应用运行日志</option>
+          </select>
+          <label class="mini"><input type="checkbox" id="logOnlyErr"><span>只看错误/警告</span></label>
+          <span class="grow"></span>
+          <button class="ghost small" id="btnLogRefresh">刷新</button>
+          <button class="ghost small" id="btnLogCopy">复制</button>
+          <button class="ghost small" id="btnLogClear">清空</button>
+        </div>
+        <pre class="console" id="console"></pre>
+      </div>
+
+      <div class="box hidden" id="nginxPreviewBox">
+        <h3>生成的 Nginx 配置预览</h3>
+        <textarea id="nginxPreview" rows="14" spellcheck="false"></textarea>
+        <div class="inline">
+          <button class="ghost" id="btnNginxReload">重新生成</button>
+          <button class="ghost" id="btnNginxDownload">下载 nginx.conf</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>数据库概览</h3>
+        <div id="dbOverview" class="plain">点「初始化数据库」后这里显示表结构。</div>
+      </div>
+    </section>
+
+    <!-- ============ 6. 备份与导出 ============ -->
+    <section class="panel" data-panel="6">
+      <h2>6. 打包与导出 <span class="hint" data-tip="备份包含项目源码、数据库、配置与生成的部署文件；导出可以只拿脚本或只拿代码包。">?</span></h2>
+      <p class="desc">下载压缩包保存到本地。</p>
+
+      <div class="grid two">
+        <div class="box">
+          <h3>一键备份（项目 + 数据库 + 配置）</h3>
+          <div class="inline">
+            <input type="text" id="backupNote" placeholder="备份说明（可选）">
+            <button class="primary" id="btnBackup">开始备份</button>
+            <button class="ghost" id="btnBackupList">刷新列表</button>
+          </div>
+          <ul class="files" id="backupList"></ul>
+        </div>
+        <div class="box">
+          <h3>导出</h3>
+          <div class="inline wrap-btns">
+            <button class="primary" id="btnExportDeploy">导出部署脚本+配置</button>
+            <button class="ghost" id="btnExportNginx">导出 nginx.conf</button>
+            <button class="ghost" id="btnExportCode">导出项目代码包</button>
+            <button class="ghost" id="btnArtifacts">预览全部生成文件</button>
+          </div>
+          <p class="help">导出的脚本可以直接拷到服务器执行；代码包是当前工作目录里的源码。</p>
+          <ul class="files" id="exportList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 高级模式：底层命令 ============ -->
+    <section class="panel advanced hidden" data-panel="adv">
+      <h2>高级模式：底层命令 <span class="hint" data-tip="这里显示的就是面板真正执行的命令；你可以改成自己的写法再保存，懂技术时很有用。">?</span></h2>
+      <p class="desc">留空表示使用面板生成的默认命令。</p>
+      <div id="commandList" class="cmdlist"></div>
+      <div class="sticky-save">
+        <button class="primary" id="btnSaveCommands">保存命令覆盖</button>
+        <button class="ghost" id="btnReloadCommands">还原显示</button>
+        <span class="validmsg" id="cmdMsg"></span>
+      </div>
+    </section>
+
+    <div class="empty hidden" id="placeholder"></div>
+  </main>
+</div>
+
+<div class="drawer hidden" id="drawer">
+  <div class="drawer-head"><b id="drawerTitle">详情</b><button class="ghost small" id="drawerClose">关闭</button></div>
+  <pre class="console tall" id="drawerBody"></pre>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/config_form.js"></script>
+<script src="/js/logs.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

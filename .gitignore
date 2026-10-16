@@ -1,0 +1,31 @@
+# 运行期工作区：配置、源码、日志、备份、导出（含 token 与数据库，切勿提交）
+.workdir/
+**/.workdir/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 面板运行时会生成的数据库文件（模板本身不含数据库）
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# 日志、备份包与导出的压缩包
+*.log
+.workdir/backups/
+.workdir/exports/
+.workdir/uploads/
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 本地面板配置（如果被放到仓库根目录）
+config.json

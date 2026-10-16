@@ -1,0 +1,255 @@
+{
+  "site": {
+    "name": "打工避雷平台",
+    "tagline": "入职前查一查：拖欠工资 / 虚假招聘 / 押金诈骗 / 强制加班",
+    "notice": "本站为演示站点，公司名称与内容均为示例数据，用于展示平台形态与查询方式。",
+    "updated": "2026-10-16"
+  },
+  "categories": ["拖欠工资", "虚假招聘", "押金诈骗", "强制加班", "试用期社保", "社保公积金", "离职结算", "其他"],
+  "risk_labels": { "1": "轻微", "2": "中等", "3": "严重" },
+  "companies": [
+    {
+      "id": 1,
+      "name": "示例科技有限公司",
+      "industry": "互联网",
+      "city": "杭州",
+      "scale": "100-499人",
+      "risk_level": 2,
+      "tags": ["试用期不缴社保", "强制大小周"],
+      "summary": "面试承诺与 offer 不一致，试用期不缴社保。",
+      "reports": [
+        {
+          "id": 1,
+          "category": "试用期社保",
+          "title": "试用期三个月不缴社保",
+          "content": "入职时口头承诺转正补缴，实际一直没缴。问 HR 就回复“公司统一规定”，转正后又说要再等三个月。",
+          "city": "杭州",
+          "job": "前端开发",
+          "date": "2026-03-11",
+          "video": ""
+        },
+        {
+          "id": 2,
+          "category": "强制加班",
+          "title": "大小周且不算加班费",
+          "content": "入职说明是双休，实际第二周开始大小周。周六打卡但没有加班费也不给调休，人事说“算在绩效里”。",
+          "city": "杭州",
+          "job": "后端开发",
+          "date": "2026-04-02",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "示例人力资源服务部",
+      "industry": "人力资源",
+      "city": "深圳",
+      "scale": "20-99人",
+      "risk_level": 3,
+      "tags": ["押金诈骗", "虚假招聘"],
+      "summary": "以培训费、押金名义收费，收款后失联。",
+      "reports": [
+        {
+          "id": 3,
+          "category": "押金诈骗",
+          "title": "入职先交 2000 元培训费",
+          "content": "面试当天说通过，要求先交 2000 元“岗前培训押金”，承诺入职满一个月退还。交完钱后对方微信拉黑，办公地点也空了。",
+          "city": "深圳",
+          "job": "普工",
+          "date": "2026-05-08",
+          "video": "https://www.bilibili.com/video/示例占位"
+        },
+        {
+          "id": 4,
+          "category": "虚假招聘",
+          "title": "挂假岗位收集简历",
+          "content": "同一个岗位挂了半年一直在招，投了以后从不回复，面试也只是走流程让等通知，怀疑是拿招聘名额刷 KPI。",
+          "city": "深圳",
+          "job": "客服",
+          "date": "2026-05-20",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "示例餐饮连锁",
+      "industry": "餐饮",
+      "city": "成都",
+      "scale": "500-999人",
+      "risk_level": 1,
+      "tags": ["加班记录与实际不符"],
+      "summary": "排班表与工资条加班时长对不上。",
+      "reports": [
+        {
+          "id": 5,
+          "category": "加班",
+          "title": "排班表造假",
+          "content": "工资条显示的加班时长比实际少一半，店长说排班表以系统为准，但系统里的记录和实际打卡对不上。",
+          "city": "成都",
+          "job": "服务员",
+          "date": "2026-02-14",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "示例物流有限公司",
+      "industry": "物流运输",
+      "city": "郑州",
+      "scale": "1000人以上",
+      "risk_level": 3,
+      "tags": ["拖欠工资", "离职克扣"],
+      "summary": "连续两个月延迟发薪，离职时克扣最后一个月工资。",
+      "reports": [
+        {
+          "id": 6,
+          "category": "拖欠工资",
+          "title": "连续两个月延迟发放",
+          "content": "工资从每月 10 号拖到 25 号以后才发，问就是“财务流程慢”。同批入职的同事都遇到，离职时才结清。",
+          "city": "郑州",
+          "job": "分拣员",
+          "date": "2026-06-01",
+          "video": ""
+        },
+        {
+          "id": 7,
+          "category": "离职结算",
+          "title": "离职被扣「设备损耗费」",
+          "content": "办离职时被扣 800 元设备损耗费，入职时并没有任何书面约定，工服和扫描枪都是正常使用痕迹。",
+          "city": "郑州",
+          "job": "仓管",
+          "date": "2026-06-19",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "示例客服外包公司",
+      "industry": "外包服务",
+      "city": "西安",
+      "scale": "100-499人",
+      "risk_level": 2,
+      "tags": ["社保公积金", "强制加班"],
+      "summary": "按最低基数缴社保，夜班不给补贴。",
+      "reports": [
+        {
+          "id": 8,
+          "category": "社保公积金",
+          "title": "按最低基数缴社保",
+          "content": "实际工资 7000 但社保按最低基数申报，公积金一直没缴。离职打印明细才发现，补缴申请被拒。",
+          "city": "西安",
+          "job": "客服",
+          "date": "2026-07-03",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "示例培训机构",
+      "industry": "教育培训",
+      "city": "武汉",
+      "scale": "20-99人",
+      "risk_level": 3,
+      "tags": ["虚假招聘", "押金诈骗"],
+      "summary": "以招聘为名推销付费课程。",
+      "reports": [
+        {
+          "id": 9,
+          "category": "虚假招聘",
+          "title": "面试变课程推销",
+          "content": "投的是设计岗，面试十分钟后开始讲“你能力不够需要先学习”，推荐 12800 元的包装班，说不报就没有岗位。",
+          "city": "武汉",
+          "job": "UI设计",
+          "date": "2026-04-27",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "示例网络科技有限公司",
+      "industry": "互联网",
+      "city": "广州",
+      "scale": "20-99人",
+      "risk_level": 2,
+      "tags": ["离职结算", "试用期社保"],
+      "summary": "试用期不给签合同，离职拖发工资。",
+      "reports": [
+        {
+          "id": 10,
+          "category": "离职结算",
+          "title": "离职后拖了一个月才发工资",
+          "content": "3 月离职，4 月底才收到工资，中间多次催问只回复“在走流程”。同期离职的同事也是同样情况。",
+          "city": "广州",
+          "job": "运营",
+          "date": "2026-08-12",
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "示例建材有限公司",
+      "industry": "制造业",
+      "city": "佛山",
+      "scale": "500-999人",
+      "risk_level": 1,
+      "tags": ["加班记录与实际不符"],
+      "summary": "加班有记录但调休难批。",
+      "reports": [
+        {
+          "id": 11,
+          "category": "加班",
+          "title": "调休申请一直被驳回",
+          "content": "加班时长有系统记录，但申请调休时组长以“产线缺人”为由驳回，累积的 60 多小时调休离职时也没折算。",
+          "city": "佛山",
+          "job": "质检员",
+          "date": "2026-05-30",
+          "video": ""
+        }
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "title": "1. 本机跑起来（最快，2 分钟）",
+      "steps": [
+        "git clone https://github.com/waxjgn/job-radar-panel.git",
+        "cd job-radar-panel",
+        "python -m venv .venv && .venv\\Scripts\\activate（Windows）/ source .venv/bin/activate（Linux/macOS）",
+        "pip install -r projects/打工避雷平台/requirements.txt",
+        "cd projects/打工避雷平台 && python manage.py init-db && python app.py",
+        "浏览器打开 http://127.0.0.1:5000 就能搜索、提交举报（带验证码与内容审核）"
+      ],
+      "note": "只需要 Python 3.8+，数据库用 SQLite，免安装。"
+    },
+    {
+      "title": "2. 用部署面板一键部署（图形化）",
+      "steps": [
+        "cd tools/deploy_panel（若仓库根目录即面板，则直接在本目录）",
+        "python -m pip install -r requirements.txt",
+        "python app.py 打开 http://127.0.0.1:8765",
+        "面板里选「项目源 → 内置模板：打工避雷平台」",
+        "选部署环境（本机 / Ubuntu / Render / PythonAnywhere / Vercel）",
+        "点「检测环境」→「安装依赖」→「一键部署」，日志窗口看到绿色即成功",
+        "需要上线就点「导出部署脚本+配置」，把 deploy/ 拷到服务器执行"
+      ],
+      "note": "面板是部署工具，本身跑在本机；它不提供服务器与域名，只生成配置和产物。"
+    },
+    {
+      "title": "3. 发布到公网（三选一）",
+      "steps": [
+        "Render：把仓库连到 Render，会自动读取 deploy/render.yaml，免费实例可跑 Flask（磁盘临时，重启丢数据）",
+        "PythonAnywhere：把 deploy/pythonanywhere_wsgi.py 内容粘到 Web → WSGI 配置文件，免费额度可跑原型",
+        "Vercel：只适合放静态页面（就是你现在看的这个站），Flask 后端跑不了",
+        "要正式对外：Ubuntu 轻量云 + 面板生成的 nginx.conf、systemd、gunicorn、deploy.sh"
+      ],
+      "note": "本静态站就是 GitHub Pages 免费方案，配 docs/index.html 自动发布。"
+    }
+  ]
+}

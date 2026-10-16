@@ -1,0 +1,13 @@
+# 打工避雷平台 · 可视化部署面板 —— 依赖
+# 安装：python -m pip install -r requirements.txt
+
+flask>=3.0
+
+# 可选：装了以后 GitHub 拉取/私有仓库支持更好（没装也能用标准库拉取）
+requests>=2.31
+
+# 仅 Ubuntu / Render 生产部署需要
+gunicorn>=21.2; sys_platform != "win32"
+
+# 选择 MySQL 时需要
+pymysql>=1.1

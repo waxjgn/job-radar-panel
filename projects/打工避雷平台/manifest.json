@@ -1,0 +1,40 @@
+{
+  "id": "打工避雷平台",
+  "name": "打工避雷平台",
+  "desc": "求职/打工避雷查询平台：公司黑名单、岗位避雷、举报提交与审核、视频链接白名单校验。内置数据库表、接口与页面，选它即可自动填入，不用手动粘贴。",
+  "version": "1.0.0",
+  "entry": "app.py",
+  "run": "python app.py",
+  "db": {
+    "engine": "sqlite",
+    "schema": "schema.sql",
+    "seeds": "seeds.sql",
+    "path": "data/app.db"
+  },
+  "tables": [
+    {"name": "company", "desc": "公司/用人单位主表（含风险等级与避雷标签）"},
+    {"name": "report", "desc": "举报与避雷记录（含视频链接、状态、审核结果）"},
+    {"name": "review_log", "desc": "内容审核流水（命中的规则与处理动作）"},
+    {"name": "rate_limit", "desc": "按 IP 的提交计数，用于防刷限制"},
+    {"name": "video_allowlist", "desc": "视频域名白名单，后端据此校验链接"}
+  ],
+  "routes": [
+    {"path": "/", "method": "GET", "desc": "首页：搜索框 + 最近避雷记录"},
+    {"path": "/api/search", "method": "GET", "desc": "按公司名/城市/行业搜索避雷记录"},
+    {"path": "/api/company/<id>", "method": "GET", "desc": "公司详情与全部避雷记录"},
+    {"path": "/api/report", "method": "POST", "desc": "提交举报（人机验证 + 内容审核 + 防刷）"},
+    {"path": "/api/captcha", "method": "GET", "desc": "获取算术验证题"},
+    {"path": "/api/allowlist", "method": "GET", "desc": "查看视频域名白名单"},
+    {"path": "/admin", "method": "GET", "desc": "管理页：待审核队列"},
+    {"path": "/api/admin/review", "method": "POST", "desc": "审核通过/驳回"},
+    {"path": "/healthz", "method": "GET", "desc": "健康检查（部署平台与面板用）"}
+  ],
+  "pages": [
+    {"path": "templates/index.html", "desc": "查询页：搜索 + 结果列表 + 举报表单"},
+    {"path": "templates/admin.html", "desc": "管理页：待审核列表与通过/驳回按钮"}
+  ],
+  "safety": {
+    "video_allowlist": ["bilibili.com", "douyin.com", "kuaishou.com", "channels.weixin.qq.com"],
+    "note": "视频链接必须命中白名单域名，否则拒绝保存；可在部署面板里可视化增删。"
+  }
+}

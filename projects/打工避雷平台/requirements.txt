@@ -1,0 +1,7 @@
+# 打工避雷平台 —— 项目依赖清单
+# 部署面板会把这份清单合并进 deploy/requirements.txt
+flask>=3.0
+python-dotenv>=1.0
+
+# 选择 MySQL 时取消注释
+# pymysql>=1.1

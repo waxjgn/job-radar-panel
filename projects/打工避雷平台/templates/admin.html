@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ site }} · 后台审核</title>
+<link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body>
+<header class="topbar"><div class="wrap"><h1>{{ site }} · 后台</h1>
+<p class="sub">待审核队列 / 已驳回记录 / 审核日志</p></div></header>
+<main class="wrap">
+  <p class="hint">演示级保护：地址栏加 <code>?token=SECRET_KEY前8位</code> 后才能操作。
+    正式上线请接入登录鉴权（schema.sql 已预留 admin_user 表）。</p>
+  <p>当前状态：{% if ok %}<b class="ok">已通过凭据校验</b>{% else %}<b class="bad">缺少凭据</b>{% endif %}</p>
+
+  <h2>待审核</h2>
+  <div id="queue" class="list">加载中…</div>
+
+  <h2>驳回记录</h2>
+  <div id="rejected" class="list">加载中…</div>
+
+  <h2>审核日志</h2>
+  <div id="logs" class="list">加载中…</div>
+</main>
+<script>
+window.ADMIN_TOKEN = new URLSearchParams(location.search).get('token') || '';
+</script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>
