@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>打工避雷平台 · 入职前查一查</title>
-<meta name="description" content="打工避雷平台：查询公司拖欠工资、虚假招聘、押金诈骗、强制加班等避雷记录。支持按公司、城市、岗位、分类检索。">
-<meta name="theme-color" content="#0f172a">
+<meta name="description" content="打工避雷平台：按公司名或统一社会信用代码查询拖欠工资、虚假招聘、押金诈骗、强制加班等避雷记录，支持中国地图热力总览、随机榜与排行榜。">
+<meta name="theme-color" content="#7f1d1d">
 <meta property="og:title" content="打工避雷平台 · 入职前查一查">
-<meta property="og:description" content="查询公司拖欠工资、虚假招聘、押金诈骗、强制加班等避雷记录。">
+<meta property="og:description" content="按公司名或统一社会信用代码查询避雷记录，支持地图热力总览、随机榜与排行榜。">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230f172a'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%2338bdf8' font-family='sans-serif'%3E避%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%237f1d1d'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%23fca5a5' font-family='sans-serif'%3E避%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="./assets/style.css">
 </head>
-<body>
+<body class="theme-red">
 
 <header class="nav">
   <div class="wrap nav-inner">
@@ -25,7 +25,9 @@
     </a>
     <nav class="nav-links">
       <a href="#search">查询</a>
-      <a href="#board">风险榜</a>
+      <a href="#map">地图</a>
+      <a href="#board">排行榜</a>
+      <a href="#submit">提交避雷</a>
       <a href="#guides">自建部署</a>
       <a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">GitHub</a>
     </nav>
@@ -41,60 +43,186 @@
   </div>
 </section>
 
-<main class="wrap">
+<div class="wrap layout">
 
-  <section id="search" class="card">
-    <div class="card-head">
-      <h2>查询避雷记录</h2>
-      <span class="count" id="resultCount"></span>
+  <!-- ============ 左侧：垂直条形榜单（随机榜为主） ============ -->
+  <aside class="side" id="side">
+    <div class="side-inner">
+      <section class="pane random-pane">
+        <div class="pane-head">
+          <h2><span class="dot-live"></span>随机榜</h2>
+          <button type="button" class="mini-btn" data-reshuffle="1" title="立刻换一批">换一批</button>
+        </div>
+        <p class="pane-hint" id="randomHint">每 10 秒自动轮换</p>
+        <ol class="vlist" id="random-list"></ol>
+      </section>
+
+      <section class="pane" id="board">
+        <div class="pane-head">
+          <h2>排行榜</h2>
+          <select id="boardSort" class="mini-select" title="排序方式">
+            <option value="risk">风险优先</option>
+            <option value="metoo">同问最多</option>
+            <option value="reports">记录最多</option>
+            <option value="recent">最新提交</option>
+          </select>
+        </div>
+        <div class="board-filters" id="boardFilters"></div>
+        <ol class="vlist ranked" id="board-list"></ol>
+      </section>
     </div>
-    <div class="searchbar">
-      <input type="search" id="q" placeholder="输入公司名 / 城市 / 岗位 / 关键词，例如：押金、社保、杭州" autocomplete="off">
-      <button type="button" id="clearBtn" class="ghost">清空</button>
-    </div>
-    <div class="filters">
-      <div class="chips" id="catChips"></div>
-      <label class="sel">
-        城市
-        <select id="citySel"><option value="">全部</option></select>
-      </label>
-      <label class="sel">
-        排序
-        <select id="sortSel">
-          <option value="risk">风险从高到低</option>
-          <option value="recent">最近提交优先</option>
-          <option value="reports">记录数最多</option>
-        </select>
-      </label>
-    </div>
-    <div id="results" class="results"></div>
-  </section>
+  </aside>
 
-  <section id="board" class="card">
-    <div class="card-head"><h2>风险榜</h2><span class="count">按风险等级与记录数排序</span></div>
-    <div id="board-list" class="board"></div>
-  </section>
+  <!-- ============ 右侧：主体内容 ============ -->
+  <main class="content">
 
-  <section id="guides" class="card">
-    <div class="card-head"><h2>自己部署一套</h2><span class="count">开源，可自建</span></div>
-    <p class="muted">
-      这个站是静态演示（数据在 <code>docs/data/companies.json</code>），真正的平台是仓库里的 Flask 项目，
-      带提交举报、人机验证、内容审核、防刷限制和后台审核队列。仓库里还带一个可视化部署面板，可以图形化一键部署。
-    </p>
-    <div id="guides-list" class="guides"></div>
-    <p class="muted">
-      仓库地址：<a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">github.com/waxjgn/job-radar-panel</a>
-    </p>
-  </section>
+    <section id="search" class="card">
+      <div class="card-head">
+        <h2>查询避雷记录</h2>
+        <span class="count" id="resultCount"></span>
+      </div>
+      <div class="searchbar">
+        <input type="search" id="q" placeholder="公司名 / 统一社会信用代码 / 城市 / 岗位 / 关键词，例如：91330106 或 押金" autocomplete="off">
+        <button type="button" id="clearBtn" class="ghost">清空</button>
+      </div>
+      <div class="filters">
+        <div class="chips" id="catChips"></div>
+        <label class="sel">
+          城市
+          <select id="citySel"><option value="">全部</option></select>
+        </label>
+        <label class="sel">
+          视图
+          <select id="viewSel">
+            <option value="list">列表</option>
+            <option value="map">中国地图</option>
+          </select>
+        </label>
+      </div>
+      <div id="results" class="results"></div>
+    </section>
 
-</main>
+    <!-- 地图 -->
+    <section id="map" class="card mapcard hidden">
+      <div class="card-head">
+        <h2>避雷热力地图</h2>
+        <span class="count">越密越红 · 越稀越蓝 · 无数据白色</span>
+      </div>
+      <p class="muted">
+        按省份聚合下方记录：<b>越深红表示该省每家公司平均被举报越密</b>，蓝色表示较稀，白色表示暂无记录。
+        滚轮/双指缩放，拖拽平移，点击省份筛选右侧列表。
+      </p>
+      <div class="mapwrap">
+        <div id="map-chart" class="map-chart"></div>
+        <div class="map-legend" id="map-legend"></div>
+        <div class="map-fallback hidden" id="map-fallback">
+          <p><b>地图库未加载成功</b>（网络受限时），以下为等价的省级热力网格：</p>
+          <div class="heatgrid" id="heat-grid"></div>
+        </div>
+      </div>
+      <div class="map-tools">
+        <button type="button" class="ghost small" id="mapZoomIn">放大</button>
+        <button type="button" class="ghost small" id="mapZoomOut">缩小</button>
+        <button type="button" class="ghost small" id="mapReset">复位</button>
+        <span class="grow"></span>
+        <span class="muted" id="mapTip">点击省份筛选，点空白处取消</span>
+      </div>
+      <p class="muted" id="mapAttribution"></p>
+    </section>
+
+    <!-- 移动端榜单（桌面端在左侧侧栏） -->
+    <section id="board-mobile" class="card mobile-only">
+      <div class="card-head">
+        <h2>随机榜 / 排行榜</h2>
+        <span class="count">桌面端显示在左侧侧栏</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <h3>随机榜 <button type="button" class="mini-btn" data-reshuffle="1">换一批</button></h3>
+          <ol class="vlist" id="random-list-m"></ol>
+        </div>
+        <div>
+          <h3>排行榜</h3>
+          <select id="boardSort-m" class="mini-select">
+            <option value="risk">风险优先</option>
+            <option value="metoo">同问最多</option>
+            <option value="reports">记录最多</option>
+            <option value="recent">最新提交</option>
+          </select>
+          <ol class="vlist ranked" id="board-list-m"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 提交避雷（含统一社会信用代码 + 申诉入口） -->
+    <section id="submit" class="card">
+      <div class="card-head"><h2>提交避雷</h2><span class="count">演示表单（静态站不落库）</span></div>
+      <p class="muted">
+        提交时请填写<b>统一社会信用代码</b>：它能把这条件对精确锚定到具体主体，避免同名公司误伤。
+        被举报主体可在下方发起申诉，申诉记录会公示在详情页顶部。
+      </p>
+      <form id="submitForm" class="form-grid">
+        <label>公司名称 *<input name="company" required placeholder="与营业执照一致的全称"></label>
+        <label>统一社会信用代码 *
+          <input name="credit_code" id="creditInput" maxlength="18" placeholder="18 位，例如 91330106MA2CD1E47X">
+          <span class="field-hint" id="creditHint">格式：18 位数字与大写字母</span>
+        </label>
+        <label>城市<input name="city" list="cityList"><datalist id="cityList"></datalist></label>
+        <label>岗位<input name="job"></label>
+        <label>分类<select name="category" id="catSelect"></select></label>
+        <label>发生时间<input type="date" name="date"></label>
+        <label class="span-2">标题 *<input name="title" maxlength="120" required></label>
+        <label class="span-2">经过 *<textarea name="content" rows="4" required placeholder="至少 10 个字，写清时间、岗位、具体经过与可核实的细节"></textarea></label>
+        <label class="span-2">证据类型（逗号分隔）<input name="evidence" placeholder="劳动合同, 工资流水, 聊天记录"></label>
+        <label class="span-2">视频链接（可选，需在白名单域名内）<input name="video" placeholder="https://www.bilibili.com/video/..."></label>
+        <div class="span-2 form-actions">
+          <button type="button" class="primary big" id="submitBtn">提交避雷</button>
+          <button type="button" class="ghost" id="demoFill">填充示例</button>
+          <span class="validmsg" id="submitMsg"></span>
+        </div>
+      </form>
+
+      <div class="appeal-box" id="appealBox">
+        <div class="appeal-title">
+          <span class="appeal-flag">申诉</span>
+          <b>被举报主体可发起申诉</b>
+          <span class="appeal-sub">申诉与举报同等醒目，会公示在对应主体详情页顶部</span>
+        </div>
+        <form id="appealForm" class="form-grid">
+          <label>主体名称 *<input name="company" required placeholder="公司全称"></label>
+          <label>统一社会信用代码 *<input name="credit_code" maxlength="18" placeholder="18 位"></label>
+          <label class="span-2">申诉理由 *<textarea name="reason" rows="3" required placeholder="说明事实依据，并注明可核验的凭证类型"></textarea></label>
+          <div class="span-2 form-actions">
+            <button type="button" class="danger big" id="appealBtn">提交申诉</button>
+            <span class="validmsg" id="appealMsg"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="guides" class="card">
+      <div class="card-head"><h2>自己部署一套</h2><span class="count">开源，可自建</span></div>
+      <p class="muted">
+        这个站是静态演示（数据在 <code>docs/data/companies.json</code>），真正的平台在仓库
+        <code>projects/打工避雷平台/</code>：Flask + SQLite/MySQL，带提交举报、人机验证、内容审核、防刷限制、后台审核队列与申诉处理。
+        仓库根还有可视化部署面板，可图形化一键部署。
+      </p>
+      <div id="guides-list" class="guides"></div>
+      <p class="muted" id="techNote"></p>
+      <p class="muted">
+        仓库地址：<a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">github.com/waxjgn/job-radar-panel</a>
+      </p>
+    </section>
+
+  </main>
+</div>
 
 <footer class="foot">
   <div class="wrap">
     <p id="footNotice"></p>
     <p class="muted">
       内容由用户提交、平台仅作信息汇集，请自行核实后再做决定。 ·
-      本站由 GitHub Pages 免费托管 · <span id="updated"></span>
+      本站由 GitHub Pages 免费托管 · 地图由 Apache ECharts 渲染 · <span id="updated"></span>
     </p>
   </div>
 </footer>

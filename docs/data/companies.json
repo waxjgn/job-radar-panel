@@ -2,21 +2,52 @@
   "site": {
     "name": "打工避雷平台",
     "tagline": "入职前查一查：拖欠工资 / 虚假招聘 / 押金诈骗 / 强制加班",
-    "notice": "本站为演示站点，公司名称与内容均为示例数据，用于展示平台形态与查询方式。",
-    "updated": "2026-10-16"
+    "notice": "本站为演示站点，公司名称、统一社会信用代码与内容均为示例数据（信用代码按规则生成，不对应任何真实主体）。",
+    "updated": "2026-10-16",
+    "primary_board": "random",
+    "theme": "red"
   },
   "categories": ["拖欠工资", "虚假招聘", "押金诈骗", "强制加班", "试用期社保", "社保公积金", "离职结算", "其他"],
   "risk_labels": { "1": "轻微", "2": "中等", "3": "严重" },
+  "appeal_status_labels": {
+    "none": "未申诉",
+    "pending": "申诉中",
+    "accepted": "申诉已受理",
+    "rejected": "申诉被驳回"
+  },
+  "regions": {
+    "杭州": { "code": "3301", "adcode": "330000", "province": "浙江", "coord": [120.155, 30.274] },
+    "深圳": { "code": "4403", "adcode": "440000", "province": "广东", "coord": [114.058, 22.543] },
+    "广州": { "code": "4401", "adcode": "440000", "province": "广东", "coord": [113.264, 23.129] },
+    "成都": { "code": "5101", "adcode": "510000", "province": "四川", "coord": [104.066, 30.572] },
+    "郑州": { "code": "4101", "adcode": "410000", "province": "河南", "coord": [113.625, 34.747] },
+    "西安": { "code": "6101", "adcode": "610000", "province": "陕西", "coord": [108.948, 34.263] },
+    "武汉": { "code": "4201", "adcode": "420000", "province": "湖北", "coord": [114.305, 30.593] },
+    "佛山": { "code": "4406", "adcode": "440000", "province": "广东", "coord": [113.122, 23.028] },
+    "北京": { "code": "1101", "adcode": "110000", "province": "北京", "coord": [116.407, 39.904] },
+    "上海": { "code": "3101", "adcode": "310000", "province": "上海", "coord": [121.473, 31.230] },
+    "苏州": { "code": "3205", "adcode": "320000", "province": "江苏", "coord": [120.585, 31.299] },
+    "重庆": { "code": "5001", "adcode": "500000", "province": "重庆", "coord": [106.551, 29.563] },
+    "青岛": { "code": "3702", "adcode": "370000", "province": "山东", "coord": [120.383, 36.067] },
+    "沈阳": { "code": "2101", "adcode": "210000", "province": "辽宁", "coord": [123.429, 41.796] }
+  },
   "companies": [
     {
       "id": 1,
       "name": "示例科技有限公司",
+      "credit_code": "91330106MA2CD1E47X",
+      "credit_code_verified": false,
       "industry": "互联网",
       "city": "杭州",
+      "province": "浙江",
+      "adcode": "330000",
+      "coord": [120.155, 30.274],
       "scale": "100-499人",
       "risk_level": 2,
       "tags": ["试用期不缴社保", "强制大小周"],
       "summary": "面试承诺与 offer 不一致，试用期不缴社保。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 18,
       "reports": [
         {
           "id": 1,
@@ -26,6 +57,8 @@
           "city": "杭州",
           "job": "前端开发",
           "date": "2026-03-11",
+          "metoo": 12,
+          "evidence": ["入职邮件", "社保明细截图"],
           "video": ""
         },
         {
@@ -36,6 +69,8 @@
           "city": "杭州",
           "job": "后端开发",
           "date": "2026-04-02",
+          "metoo": 6,
+          "evidence": ["排班表"],
           "video": ""
         }
       ]
@@ -43,12 +78,23 @@
     {
       "id": 2,
       "name": "示例人力资源服务部",
+      "credit_code": "91440300MA5EX8KQ2P",
+      "credit_code_verified": true,
       "industry": "人力资源",
       "city": "深圳",
+      "province": "广东",
+      "adcode": "440000",
+      "coord": [114.058, 22.543],
       "scale": "20-99人",
       "risk_level": 3,
       "tags": ["押金诈骗", "虚假招聘"],
       "summary": "以培训费、押金名义收费，收款后失联。",
+      "appeal": {
+        "status": "pending",
+        "count": 1,
+        "latest": "该主体称“收费由第三方培训机构收取，与本公司无关”，正在核验收款凭证。"
+      },
+      "metoo": 47,
       "reports": [
         {
           "id": 3,
@@ -58,6 +104,8 @@
           "city": "深圳",
           "job": "普工",
           "date": "2026-05-08",
+          "metoo": 33,
+          "evidence": ["转账记录", "聊天记录"],
           "video": "https://www.bilibili.com/video/示例占位"
         },
         {
@@ -68,6 +116,8 @@
           "city": "深圳",
           "job": "客服",
           "date": "2026-05-20",
+          "metoo": 14,
+          "evidence": ["招聘页面截图"],
           "video": ""
         }
       ]
@@ -75,12 +125,19 @@
     {
       "id": 3,
       "name": "示例餐饮连锁",
+      "credit_code": "",
+      "credit_code_verified": false,
       "industry": "餐饮",
       "city": "成都",
+      "province": "四川",
+      "adcode": "510000",
+      "coord": [104.066, 30.572],
       "scale": "500-999人",
       "risk_level": 1,
       "tags": ["加班记录与实际不符"],
       "summary": "排班表与工资条加班时长对不上。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 9,
       "reports": [
         {
           "id": 5,
@@ -90,6 +147,8 @@
           "city": "成都",
           "job": "服务员",
           "date": "2026-02-14",
+          "metoo": 9,
+          "evidence": ["工资条", "打卡记录"],
           "video": ""
         }
       ]
@@ -97,12 +156,23 @@
     {
       "id": 4,
       "name": "示例物流有限公司",
+      "credit_code": "91410100MA3X2F9L7B",
+      "credit_code_verified": true,
       "industry": "物流运输",
       "city": "郑州",
+      "province": "河南",
+      "adcode": "410000",
+      "coord": [113.625, 34.747],
       "scale": "1000人以上",
       "risk_level": 3,
       "tags": ["拖欠工资", "离职克扣"],
       "summary": "连续两个月延迟发薪，离职时克扣最后一个月工资。",
+      "appeal": {
+        "status": "rejected",
+        "count": 2,
+        "latest": "该主体提出“考勤数据缺失导致延迟”，未提供有效凭证，申诉驳回。"
+      },
+      "metoo": 61,
       "reports": [
         {
           "id": 6,
@@ -112,6 +182,8 @@
           "city": "郑州",
           "job": "分拣员",
           "date": "2026-06-01",
+          "metoo": 41,
+          "evidence": ["银行流水"],
           "video": ""
         },
         {
@@ -122,6 +194,8 @@
           "city": "郑州",
           "job": "仓管",
           "date": "2026-06-19",
+          "metoo": 20,
+          "evidence": ["离职结算单"],
           "video": ""
         }
       ]
@@ -129,12 +203,19 @@
     {
       "id": 5,
       "name": "示例客服外包公司",
+      "credit_code": "91610113MA6U9W3T5N",
+      "credit_code_verified": false,
       "industry": "外包服务",
       "city": "西安",
+      "province": "陕西",
+      "adcode": "610000",
+      "coord": [108.948, 34.263],
       "scale": "100-499人",
       "risk_level": 2,
       "tags": ["社保公积金", "强制加班"],
       "summary": "按最低基数缴社保，夜班不给补贴。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 27,
       "reports": [
         {
           "id": 8,
@@ -144,6 +225,8 @@
           "city": "西安",
           "job": "客服",
           "date": "2026-07-03",
+          "metoo": 27,
+          "evidence": ["社保缴费明细"],
           "video": ""
         }
       ]
@@ -151,12 +234,23 @@
     {
       "id": 6,
       "name": "示例培训机构",
+      "credit_code": "",
+      "credit_code_verified": false,
       "industry": "教育培训",
       "city": "武汉",
+      "province": "湖北",
+      "adcode": "420000",
+      "coord": [114.305, 30.593],
       "scale": "20-99人",
       "risk_level": 3,
       "tags": ["虚假招聘", "押金诈骗"],
       "summary": "以招聘为名推销付费课程。",
+      "appeal": {
+        "status": "accepted",
+        "count": 1,
+        "latest": "该主体提供培训协议，已更正部分描述为“付费课程推荐”，原招聘表述予以保留。"
+      },
+      "metoo": 38,
       "reports": [
         {
           "id": 9,
@@ -166,6 +260,8 @@
           "city": "武汉",
           "job": "UI设计",
           "date": "2026-04-27",
+          "metoo": 38,
+          "evidence": ["课程报价单"],
           "video": ""
         }
       ]
@@ -173,12 +269,19 @@
     {
       "id": 7,
       "name": "示例网络科技有限公司",
+      "credit_code": "91440101MA5CQ7YH8R",
+      "credit_code_verified": true,
       "industry": "互联网",
       "city": "广州",
+      "province": "广东",
+      "adcode": "440000",
+      "coord": [113.264, 23.129],
       "scale": "20-99人",
       "risk_level": 2,
       "tags": ["离职结算", "试用期社保"],
       "summary": "试用期不给签合同，离职拖发工资。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 22,
       "reports": [
         {
           "id": 10,
@@ -188,6 +291,8 @@
           "city": "广州",
           "job": "运营",
           "date": "2026-08-12",
+          "metoo": 22,
+          "evidence": ["催款聊天记录"],
           "video": ""
         }
       ]
@@ -195,12 +300,19 @@
     {
       "id": 8,
       "name": "示例建材有限公司",
+      "credit_code": "91440605MA4W1P6J3D",
+      "credit_code_verified": false,
       "industry": "制造业",
       "city": "佛山",
+      "province": "广东",
+      "adcode": "440000",
+      "coord": [113.122, 23.028],
       "scale": "500-999人",
       "risk_level": 1,
       "tags": ["加班记录与实际不符"],
       "summary": "加班有记录但调休难批。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 11,
       "reports": [
         {
           "id": 11,
@@ -210,6 +322,230 @@
           "city": "佛山",
           "job": "质检员",
           "date": "2026-05-30",
+          "metoo": 11,
+          "evidence": ["调休申请记录"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "示例数据服务有限公司",
+      "credit_code": "91110108MA01YC7X2K",
+      "credit_code_verified": true,
+      "industry": "互联网",
+      "city": "北京",
+      "province": "北京",
+      "adcode": "110000",
+      "coord": [116.407, 39.904],
+      "scale": "100-499人",
+      "risk_level": 3,
+      "tags": ["拖欠工资", "社保公积金", "离职克扣"],
+      "summary": "连续三个月工资拆分发放，离职克扣年终奖。",
+      "appeal": {
+        "status": "pending",
+        "count": 3,
+        "latest": "该主体提出“绩效未达标”，但未提供考核制度与签字记录，正在核验。"
+      },
+      "metoo": 84,
+      "reports": [
+        {
+          "id": 12,
+          "category": "拖欠工资",
+          "title": "工资拆成两笔且第二笔常拖",
+          "content": "合同写 20 号全额发放，实际每月只发 70%，剩下 30% 隔月才补，从没有人解释过原因。",
+          "city": "北京",
+          "job": "数据分析",
+          "date": "2026-09-05",
+          "metoo": 52,
+          "evidence": ["工资流水", "劳动合同"],
+          "video": ""
+        },
+        {
+          "id": 13,
+          "category": "社保公积金",
+          "title": "公积金断缴四个月",
+          "content": "入职后第四个月开始公积金断缴，离职时才发现，补缴要求被以“已离职”为由拒绝。",
+          "city": "北京",
+          "job": "后端开发",
+          "date": "2026-09-18",
+          "metoo": 32,
+          "evidence": ["公积金查询截图"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "示例供应链管理公司",
+      "credit_code": "91320594MA1XK9D6Q4",
+      "credit_code_verified": false,
+      "industry": "供应链",
+      "city": "苏州",
+      "province": "江苏",
+      "adcode": "320000",
+      "coord": [120.585, 31.299],
+      "scale": "100-499人",
+      "risk_level": 2,
+      "tags": ["虚假招聘", "离职结算"],
+      "summary": "offer 写 13 薪，实际按 12 薪结算。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 19,
+      "reports": [
+        {
+          "id": 14,
+          "category": "虚假招聘",
+          "title": "offer 上的年终奖不认账",
+          "content": "offer 明确写 13 薪，入职后 HR 说“以合同为准”，合同里只写了基本工资，年终奖变成看绩效。",
+          "city": "苏州",
+          "job": "采购",
+          "date": "2026-07-22",
+          "metoo": 19,
+          "evidence": ["offer 邮件"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "示例汽车服务有限公司",
+      "credit_code": "91500108MA5U7C2M9E",
+      "credit_code_verified": true,
+      "industry": "汽车服务",
+      "city": "重庆",
+      "province": "重庆",
+      "adcode": "500000",
+      "coord": [106.551, 29.563],
+      "scale": "20-99人",
+      "risk_level": 3,
+      "tags": ["押金诈骗", "离职克扣"],
+      "summary": "以“违章保证金”名义扣钱，离职不退。",
+      "appeal": {
+        "status": "rejected",
+        "count": 1,
+        "latest": "该主体称押金用于车辆违章担保，未提供扣款依据，申诉驳回。"
+      },
+      "metoo": 43,
+      "reports": [
+        {
+          "id": 15,
+          "category": "押金诈骗",
+          "title": "入职收 3000 违章保证金",
+          "content": "入职时收 3000 元现金作为“违章保证金”，只给手写收据。离职时以“有未处理违章”为由全额扣除。",
+          "city": "重庆",
+          "job": "司机",
+          "date": "2026-06-28",
+          "metoo": 43,
+          "evidence": ["手写收据", "离职结算单"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "示例智能装备有限公司",
+      "credit_code": "91370200MA3M8N5H1T",
+      "credit_code_verified": true,
+      "industry": "智能制造",
+      "city": "青岛",
+      "province": "山东",
+      "adcode": "370000",
+      "coord": [120.383, 36.067],
+      "scale": "500-999人",
+      "risk_level": 2,
+      "tags": ["强制加班", "试用期社保"],
+      "summary": "试用期六个月不缴社保，加班需要提前一周申请。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 31,
+      "reports": [
+        {
+          "id": 16,
+          "category": "试用期社保",
+          "title": "试用期六个月不缴社保",
+          "content": "合同签三年，约定试用期六个月，期间不缴社保。加班必须提前一周在系统提交申请，临时加班一律不认。",
+          "city": "青岛",
+          "job": "机械设计",
+          "date": "2026-08-30",
+          "metoo": 31,
+          "evidence": ["劳动合同", "加班制度截图"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "示例传媒有限公司",
+      "credit_code": "91210103MA0Y7Q4L8G",
+      "credit_code_verified": false,
+      "industry": "文化传媒",
+      "city": "沈阳",
+      "province": "辽宁",
+      "adcode": "210000",
+      "coord": [123.429, 41.796],
+      "scale": "20-99人",
+      "risk_level": 1,
+      "tags": ["加班记录与实际不符"],
+      "summary": "加班长期不记录，离职不折算。",
+      "appeal": { "status": "none", "count": 0, "latest": "" },
+      "metoo": 7,
+      "reports": [
+        {
+          "id": 17,
+          "category": "加班",
+          "title": "加班靠口头安排不记录",
+          "content": "加班全是口头安排，系统不录。离职时要求折算，公司说没有加班记录无法核算。",
+          "city": "沈阳",
+          "job": "视频剪辑",
+          "date": "2026-03-27",
+          "metoo": 7,
+          "evidence": ["工作群消息"],
+          "video": ""
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "示例电子商务有限公司",
+      "credit_code": "91310115MA1K2B8X7C",
+      "credit_code_verified": true,
+      "industry": "电子商务",
+      "city": "上海",
+      "province": "上海",
+      "adcode": "310000",
+      "coord": [121.473, 31.230],
+      "scale": "100-499人",
+      "risk_level": 3,
+      "tags": ["拖欠工资", "虚假招聘", "强制加班"],
+      "summary": "以“合伙人”名义规避社保，工资随绩效浮动。",
+      "appeal": {
+        "status": "pending",
+        "count": 2,
+        "latest": "该主体提出“双方为合作关系”，但未提供合作协议，正在核验劳动关系。"
+      },
+      "metoo": 96,
+      "reports": [
+        {
+          "id": 18,
+          "category": "试用期社保",
+          "title": "签合作协议不缴社保",
+          "content": "入职让签“合作框架协议”而不是劳动合同，不缴社保，工资按 GMV 提成，淡季只拿两千多。",
+          "city": "上海",
+          "job": "电商运营",
+          "date": "2026-09-09",
+          "metoo": 64,
+          "evidence": ["合作协议", "工资流水"],
+          "video": ""
+        },
+        {
+          "id": 19,
+          "category": "强制加班",
+          "title": "大促期间连续通宵无补贴",
+          "content": "大促连着两周通宵，没有任何补贴与调休，提成也按最低档计算，提出后被告知“合作关系不适用劳动法”。",
+          "city": "上海",
+          "job": "客服主管",
+          "date": "2026-09-25",
+          "metoo": 32,
+          "evidence": ["排班记录"],
           "video": ""
         }
       ]
@@ -251,5 +587,21 @@
       ],
       "note": "本静态站就是 GitHub Pages 免费方案，配 docs/index.html 自动发布。"
     }
-  ]
+  ],
+  "tech": {
+    "map_library": {
+      "name": "Apache ECharts 5（开源，Apache-2.0）",
+      "script": [
+        "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js",
+        "https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js",
+        "https://unpkg.com/echarts@5.5.1/dist/echarts.min.js"
+      ],
+      "geojson": [
+        "https://cdn.jsdelivr.net/gh/apache/echarts@4.9.0/map/json/china.json",
+        "https://unpkg.com/echarts@4.9.0/map/json/china.json",
+        "https://fastly.jsdelivr.net/gh/apache/echarts@4.9.0/map/json/china.json"
+      ],
+      "note": "GeoJSON 取自 Apache ECharts 官方仓库 map/json/china.json；加载失败时自动降级为内置省级热力网格，站点不会白屏。"
+    }
+  }
 }
