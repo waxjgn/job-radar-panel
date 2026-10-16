@@ -45,7 +45,7 @@ def search_payload(keyword):
     stats = query_one("SELECT "
                       "(SELECT COUNT(*) FROM company) AS companies, "
                       "(SELECT COUNT(*) FROM report WHERE status='approved') AS reports, "
-                      "(SELECT COUNT(*) FROM report WHERE status='pending') AS pending") or {}
+                      "(SELECT COUNT(*) FROM appeal WHERE status='pending') AS appeals_pending") or {}
     return {"reports": reports, "companies": companies, "stats": stats,
             "allowlist": CFG.load_allowlist_from_db()}
 

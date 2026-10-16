@@ -135,7 +135,7 @@ FIELDS = [
          label="验证方式", options=[("builtin", "内置算术/图形"), ("turnstile", "Cloudflare Turnstile")],
          envs=["captcha"], help="内置方式零依赖；Turnstile 需要自己去官网申请 key。"),
     dict(key="security.content_review", group="security", type="switch", default=True,
-         label="文本内容审核", help="过滤辱骂、广告、联系方式等，命中后进入待审核队列。"),
+         label="内容标记", help="命中辱骂、广告、联系方式等只做记录与提示，不影响发布（平台不设人工审核）。"),
     dict(key="security.rate_limit", group="security", type="switch", default=True,
          label="防刷限制", help="按 IP 限制提交频率，超出后返回 429。"),
     dict(key="security.rate_limit_per_min", group="security", type="number", default=10, min=1, max=600,

@@ -64,32 +64,35 @@ def check_video_url(url, allowed=None):
 
 
 # --------------------------------------------------------------------------- #
-# 2. 内容审核
+# 2. 内容标记（只提示，不拦截）
 # --------------------------------------------------------------------------- #
+_HIGH_RISK_WORDS = ("刷单", "博彩", "赌博", "贷款", "套现", "代开发票")
 _PHONE_RE = re.compile(r"(?<!\d)(1[3-9]\d{9})(?!\d)")
 _CONTACT_RE = re.compile(r"(?i)(微信|weixin|wechat|qq|vx|wx)\s*[:：]?\s*[a-zA-Z0-9_\-]{5,}")
 _URL_RE = re.compile(r"(?i)https?://[^\s]+")
 
 
 def review_text(text, extra_words=None):
-    """返回 (action, detail)：action = pass / hold / reject。"""
+    """返回 (flagged, detail)。
+
+    只做标记：站点不设人工审核，任何内容都会直接发布，
+    命中敏感词时记一条流水并在提交结果里提示，不做拦截。
+    """
     if not CFG.ENABLE_CONTENT_REVIEW:
-        return "pass", "内容审核已关闭"
+        return False, "内容标记已关闭"
     body = str(text or "")
-    words = list(CFG.REVIEW_BLOCK_WORDS) + list(extra_words or [])
-    for w in words:
+    for w in list(CFG.REVIEW_BLOCK_WORDS) + list(extra_words or []):
         if w and w in body:
-            # 广告/诈骗类直接拒绝，其余进入待审核
-            if w in ("加微信", "加QQ", "刷单", "博彩", "赌博", "贷款", "套现", "代开发票"):
-                return "reject", "命中高危词：%s" % w
-            return "hold", "命中敏感词：%s" % w
+            if w in _HIGH_RISK_WORDS:
+                return True, "含高危词：%s（已记录，内容照常发布）" % w
+            return True, "含敏感词：%s（已记录，内容照常发布）" % w
     if _PHONE_RE.search(body):
-        return "hold", "疑似包含手机号，转人工审核"
+        return True, "疑似包含手机号（已记录，内容照常发布）"
     if _CONTACT_RE.search(body):
-        return "hold", "疑似包含联系方式，转人工审核"
+        return True, "疑似包含联系方式（已记录，内容照常发布）"
     if len(_URL_RE.findall(body)) > 2:
-        return "hold", "正文含多个外链，转人工审核"
-    return "pass", "未命中审核规则"
+        return True, "正文含多个外链（已记录，内容照常发布）"
+    return False, "未命中标记规则"
 
 
 def log_review(report_id, rule, action, detail):
@@ -165,26 +168,25 @@ def verify_captcha(session, answer):
 
 
 # --------------------------------------------------------------------------- #
-# 提交前的统一检查
+# 提交前的统一检查：人机验证（挡机器人）+ 链接平台限制 + 内容标记（只记录）
 # --------------------------------------------------------------------------- #
 def pre_submit(session, ip, form):
-    """按顺序跑：人机验证 -> 内容审核 -> 白名单。返回 (ok, payload, messages)。"""
+    """返回 (ok, payload, messages)。站点不设人工审核，验证通过即直接发布。"""
     messages = []
     ok_captcha, msg = verify_captcha(session, form.get("captcha"))
     messages.append({"step": "人机验证", "ok": ok_captcha, "detail": msg})
     if not ok_captcha:
         return False, {}, messages
 
+    url = form.get("video_url", "")
+    if url and str(url).strip():
+        ok_url, url_detail, domain = check_video_url(url)
+        messages.append({"step": "链接平台", "ok": ok_url, "detail": url_detail})
+        if not ok_url:
+            return False, {}, messages
+
     text = "%s %s" % (form.get("title", ""), form.get("content", ""))
-    action, detail = review_text(text)
-    messages.append({"step": "内容审核", "ok": action != "reject", "detail": detail})
-    if action == "reject":
-        return False, {"status": "rejected"}, messages
-
-    ok_url, url_detail, domain = check_video_url(form.get("video_url", ""))
-    messages.append({"step": "视频白名单", "ok": ok_url, "detail": url_detail})
-    if not ok_url:
-        return False, {}, messages
-
-    status = "pending" if action == "hold" else "approved"
-    return True, {"status": status, "review": detail, "domain": domain}, messages
+    flagged, detail = review_text(text)
+    messages.append({"step": "内容标记", "ok": True,
+                     "detail": detail + ("（仅记录，不拦截）" if flagged else "")})
+    return True, {"status": "approved", "flagged": flagged, "review": detail}, messages

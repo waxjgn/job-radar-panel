@@ -68,21 +68,21 @@ class Config(object):
         "charset": "utf8mb4",
     }
 
-    # --- 视频域名白名单 ---
+    # --- 视频链接：只收四大平台 ---
     VIDEO_ALLOWLIST = [d.strip().lower() for d in
                        os.environ.get("VIDEO_ALLOWLIST",
                                       "bilibili.com,douyin.com,kuaishou.com,channels.weixin.qq.com"
                                       ).split(",") if d.strip()]
     PROXY_IMAGES = _bool("PROXY_IMAGES", True)
 
-    # --- 安全开关 ---
+    # --- 技术防护（不涉及人工审核）---
     ENABLE_CAPTCHA = _bool("ENABLE_CAPTCHA", True)
     CAPTCHA_PROVIDER = os.environ.get("CAPTCHA_PROVIDER", "builtin")
     ENABLE_CONTENT_REVIEW = _bool("ENABLE_CONTENT_REVIEW", True)
     ENABLE_RATE_LIMIT = _bool("ENABLE_RATE_LIMIT", True)
     RATE_LIMIT_PER_MIN = _int("RATE_LIMIT_PER_MIN", 10)
 
-    # 内容审核关键词（命中则进入待审核，不直接发布）
+    # 命中只做记录与提示，不拦截（站点不设人工审核）
     REVIEW_BLOCK_WORDS = [w for w in os.environ.get(
         "REVIEW_BLOCK_WORDS",
         "傻逼,妈逼,操你,加微信,加QQ,联系电话,私聊我,代开发票,刷单,博彩,赌博,贷款,套现"

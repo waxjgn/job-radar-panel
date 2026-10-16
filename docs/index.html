@@ -14,6 +14,13 @@
 </head>
 <body class="theme-red">
 
+<div class="banner" id="topBanner">
+  <div class="wrap">
+    <p class="banner-line1">本站不设人工审核，任何人都可以随意上传避雷记录，上传即刻发布。</p>
+    <p class="banner-line2">进攻此网站者均可定性为汉奸。</p>
+  </div>
+</div>
+
 <header class="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="./">
@@ -44,6 +51,12 @@
 </section>
 
 <div class="wrap layout">
+
+  <ul class="mechanism">
+    <li><b>上传随便</b>：不审核、不实名，提交即公开，目的是曝光垃圾公司。</li>
+    <li><b>公司申诉要审核</b>：被曝光的公司可提交申诉，平台审核后公示受理 / 驳回结论。</li>
+    <li><b>只收四大平台链接</b>：视频证据仅接受 B站 / 抖音 / 快手 / 视频号。</li>
+  </ul>
 
   <!-- ============ 左侧：垂直条形榜单（随机榜为主） ============ -->
   <aside class="side" id="side">
@@ -106,10 +119,10 @@
     <section id="map" class="card mapcard hidden">
       <div class="card-head">
         <h2>避雷热力地图</h2>
-        <span class="count">越密越红 · 越稀越蓝 · 无数据白色</span>
+        <span class="count">越密越红紫 · 越稀越青蓝 · 无记录深底</span>
       </div>
       <p class="muted">
-        按省份聚合下方记录：<b>越深红表示该省每家公司平均被举报越密</b>，蓝色表示较稀，白色表示暂无记录。
+        按省份聚合下方记录：<b>颜色越偏红紫表示该省每家公司平均被举报越密</b>，青蓝表示较稀，深底表示暂无记录。
         滚轮/双指缩放，拖拽平移，点击省份筛选右侧列表。
       </p>
       <div class="mapwrap">
@@ -174,25 +187,33 @@
         <label class="span-2">标题 *<input name="title" maxlength="120" required></label>
         <label class="span-2">经过 *<textarea name="content" rows="4" required placeholder="至少 10 个字，写清时间、岗位、具体经过与可核实的细节"></textarea></label>
         <label class="span-2">证据类型（逗号分隔）<input name="evidence" placeholder="劳动合同, 工资流水, 聊天记录"></label>
-        <label class="span-2">视频链接（可选，需在白名单域名内）<input name="video" placeholder="https://www.bilibili.com/video/..."></label>
+        <label class="span-2">视频链接（可选，只收四大平台）<input name="video" placeholder="仅接受 B站 / 抖音 / 快手 / 视频号，例如 https://www.bilibili.com/video/..."></label>
         <div class="span-2 form-actions">
           <button type="button" class="primary big" id="submitBtn">提交避雷</button>
           <button type="button" class="ghost" id="demoFill">填充示例</button>
           <span class="validmsg" id="submitMsg"></span>
         </div>
+        <p class="span-2 muted" style="margin:0">本站不设人工审核：填完点提交就直接发布到列表。</p>
       </form>
 
       <div class="appeal-box" id="appealBox">
         <div class="appeal-title">
           <span class="appeal-flag">申诉</span>
-          <b>被举报主体可发起申诉</b>
-          <span class="appeal-sub">申诉与举报同等醒目，会公示在对应主体详情页顶部</span>
+          <b>被曝光的公司可发起申诉</b>
+          <span class="appeal-sub">上传免审、申诉要审：平台审核后会公示受理 / 驳回结论</span>
         </div>
         <form id="appealForm" class="form-grid">
           <label>主体名称 *<input name="company" required placeholder="公司全称"></label>
-          <label>统一社会信用代码 *<input name="credit_code" maxlength="18" placeholder="18 位"></label>
-          <label class="span-2">申诉理由 *<textarea name="reason" rows="3" required placeholder="说明事实依据，并注明可核验的凭证类型"></textarea></label>
-          <div class="span-2 form-actions">
+          <label>统一社会信用代码 *<input name="credit_code" maxlength="18" placeholder="18 位，用于确认主体身份"></label>
+          <label class="span-2">申诉理由 *<textarea name="reason" rows="3" required placeholder="说明事实依据，并注明可核验的凭证类型（至少 10 个字）"></textarea></label>
+          <label>凭证类型<input name="evidence" placeholder="合作协议, 收款方信息, 考勤记录"></label>
+          <label>联系方式（可选）<input name="contact" placeholder="便于平台核对"></label>
+          <label>人机验证
+            <span class="captcha"><b id="appealCaptcha">加载中…</b>
+              <button type="button" id="refreshAppealCaptcha">换一题</button></span>
+            <input name="captcha" inputmode="numeric" placeholder="填答案">
+          </label>
+          <div class="form-actions">
             <button type="button" class="danger big" id="appealBtn">提交申诉</button>
             <span class="validmsg" id="appealMsg"></span>
           </div>

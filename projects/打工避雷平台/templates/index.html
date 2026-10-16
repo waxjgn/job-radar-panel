@@ -7,10 +7,14 @@
 <link rel="stylesheet" href="/static/css/site.css">
 </head>
 <body>
+<div class="banner">
+  <p class="banner-line1">本站不设人工审核，任何人都可以随意上传避雷记录，上传即刻发布。</p>
+  <p class="banner-line2">进攻此网站者均可定性为汉奸。</p>
+</div>
 <header class="topbar">
   <div class="wrap">
     <h1>{{ site }}</h1>
-    <p class="sub">查一查再入职：拖欠工资 / 虚假招聘 / 押金诈骗 / 强制加班</p>
+    <p class="sub">查一查再入职：拖欠工资 / 虚假招聘 / 押金诈骗 / 强制加班 · 视频证据只收四大平台</p>
   </div>
 </header>
 
@@ -18,7 +22,7 @@
   <section class="stats">
     <div class="stat"><b>{{ stats.companies or 0 }}</b><span>收录公司</span></div>
     <div class="stat"><b>{{ stats.reports or 0 }}</b><span>已发布避雷</span></div>
-    <div class="stat"><b>{{ stats.pending or 0 }}</b><span>待审核</span></div>
+    <div class="stat"><b>{{ stats.appeals_pending or 0 }}</b><span>待审申诉</span></div>
   </section>
 
   <form class="searchbar" method="get" action="/">

@@ -53,7 +53,7 @@ def api_report():
     if not company_id:
         return jsonify({"ok": False, "step": "公司信息", "message": "请填写或选择公司"}), 400
 
-    # 3) 内容与白名单检查
+    # 3) 人机验证 + 链接平台限制 + 内容标记
     ok_flag, extra, messages = pre_submit(session, ip, form)
     if not ok_flag:
         return jsonify({"ok": False, "step": "校验未通过", "message": messages[-1]["detail"],
@@ -62,25 +62,25 @@ def api_report():
     title = (form.get("title") or "").strip()[:120]
     content = (form.get("content") or "").strip()
     if len(content) < 10:
-        return jsonify({"ok": False, "step": "内容审核",
+        return jsonify({"ok": False, "step": "格式检查",
                         "message": "正文至少 10 个字，便于他人核实"}), 400
 
+    # 不设人工审核：通过检查即直接发布
     report_id = execute(
         "INSERT INTO report (company_id, category, title, content, video_url, city, job, contact, "
         "status, ip_hash, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
         (company_id, form.get("category", "其他"), title, content,
          (form.get("video_url") or "").strip(), form.get("city", ""), form.get("job", ""),
-         form.get("contact", ""), extra.get("status", "pending"), ip_hash(ip), now()))
+         form.get("contact", ""), "approved", ip_hash(ip), now()))
 
-    log_review(report_id, "pre_submit", "hold" if extra.get("status") == "pending" else "pass",
-               extra.get("review", ""))
+    log_review(report_id, "auto", "publish",
+               ("已标记：" if extra.get("flagged") else "") + extra.get("review", ""))
 
-    if extra.get("status") == "pending":
-        return jsonify({"ok": True, "level": "warn", "data": {"id": report_id, "status": "pending"},
-                        "checks": messages,
-                        "message": "已提交，等待人工审核（%s）" % extra.get("review", "")})
+    message = "上传成功，已直接发布"
+    if extra.get("flagged"):
+        message += "（内容已自动标记：%s，不影响发布）" % extra.get("review", "")
     return jsonify({"ok": True, "level": "ok", "data": {"id": report_id, "status": "approved"},
-                    "checks": messages, "message": "提交成功，已发布"})
+                    "checks": messages, "message": message})
 
 
 @bp.route("/api/report/<int:report_id>", methods=["GET"])

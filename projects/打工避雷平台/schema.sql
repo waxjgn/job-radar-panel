@@ -5,17 +5,42 @@
 CREATE TABLE IF NOT EXISTS company (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     name        TEXT    NOT NULL,
+    credit_code TEXT,                            -- 统一社会信用代码（18 位）
     industry    TEXT,
     city        TEXT,
+    province    TEXT,
     scale       TEXT,
     risk_level  INTEGER NOT NULL DEFAULT 0,      -- 0=未知 1=轻微 2=中等 3=严重
     tags        TEXT,                            -- 逗号分隔，例如 拖欠工资,强制加班
     summary     TEXT,
+    appeal_status TEXT  DEFAULT 'none',          -- none / pending / accepted / rejected
+    appeal_count  INTEGER DEFAULT 0,
+    appeal_note   TEXT,
     created_at  TEXT    DEFAULT (datetime('now','localtime')),
     updated_at  TEXT    DEFAULT (datetime('now','localtime'))
 );
 CREATE INDEX IF NOT EXISTS idx_company_name ON company(name);
+CREATE INDEX IF NOT EXISTS idx_company_credit ON company(credit_code);
 CREATE INDEX IF NOT EXISTS idx_company_city ON company(city);
+
+-- 公司申诉：内容免审直发，只有申诉走平台审核
+CREATE TABLE IF NOT EXISTS appeal (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id   INTEGER,
+    company_name TEXT    NOT NULL,
+    credit_code  TEXT    NOT NULL,
+    reason       TEXT    NOT NULL,
+    evidence     TEXT,
+    contact      TEXT,
+    status       TEXT    NOT NULL DEFAULT 'pending',  -- pending / accepted / rejected
+    review_note  TEXT,
+    ip_hash      TEXT,
+    created_at   TEXT    DEFAULT (datetime('now','localtime')),
+    reviewed_at  TEXT,
+    FOREIGN KEY (company_id) REFERENCES company(id)
+);
+CREATE INDEX IF NOT EXISTS idx_appeal_status ON appeal(status);
+CREATE INDEX IF NOT EXISTS idx_appeal_company ON appeal(company_id);
 
 CREATE TABLE IF NOT EXISTS report (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

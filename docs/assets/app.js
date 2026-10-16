@@ -1,17 +1,19 @@
-/* 打工避雷平台 · 静态演示站逻辑
-   数据：./data/companies.json（纯前端检索，无需后端）
-   功能：搜索(含统一社会信用代码) / 同问上下箭头 / 随机榜+排行榜(左侧垂直条) /
-         中国地图热力(开源 ECharts + 官方 GeoJSON，失败自动降级网格) / 动态数显 / 申诉 */
+/* 打工避雷平台 · 静态演示站：纯前端检索，数据来自 ./data/companies.json */
 (function () {
   'use strict';
 
-  var D = null;                 // 全量数据
+  var ANIME_STOPS = ['#0b1026', '#1b2a6b', '#2b5fd9', '#37c9e6', '#8be9c0', '#ffe066', '#ff9f45', '#ff4d6d', '#c026d3'];
+  var ANIME_LABELS = ['无记录', '极稀', '很稀', '较稀', '一般', '较多', '密集', '很密', '最密'];
+  var ANIME_BORDER = '#7de3ff';
+  var ANIME_NEON = '#ff5ec8';
+
+  var D = null;
   var state = {
     q: '', cat: '', city: '', province: '', sort: 'risk', view: 'map', boardFilter: 'all'
   };
   var randomTimer = null;
   var randomPool = [];
-  var voteStore = {};           // 本地"同问"记录
+  var voteStore = {};
   var VOTE_KEY = 'job-radar-metoo-v1';
 
   function $(id) { return document.getElementById(id); }
@@ -38,7 +40,6 @@
   }
   function fmtNum(n) { return String(n == null ? 0 : n); }
 
-  /* ---------------- 统计与派生 ---------------- */
   function allReports() {
     var out = [];
     D.companies.forEach(function (c) {
@@ -71,14 +72,14 @@
     return map;
   }
   function heatColor(score) {
-    if (!score || score <= 0) return '#ffffff';
-    var stops = ['#dbeafe', '#93c5fd', '#fde68a', '#fb923c', '#ef4444', '#b91c1c', '#7f1d1d'];
-    var i = Math.min(stops.length - 1, Math.max(0, Math.round((score - 0.001) * (stops.length - 1))));
-    return stops[i];
+    if (!score || score <= 0) return ANIME_STOPS[0];
+    var i = Math.min(ANIME_STOPS.length - 1, Math.max(0, Math.round(score * (ANIME_STOPS.length - 1))));
+    return ANIME_STOPS[i];
   }
-  function heatTextColor(score) { return score >= 0.55 ? '#fff' : '#3f2b30'; }
+  function heatTextColor(score) {
+    return score >= 0.45 ? '#0b1026' : '#dceaff';
+  }
 
-  /* ---------------- 动态数显 ---------------- */
   function countUp(el, target, dur) {
     if (!el) return;
     var from = 0, start = null;
@@ -109,7 +110,6 @@
     $$('#stats b').forEach(function (el, i) { setTimeout(function () { countUp(el, Number(el.getAttribute('data-n'))); }, i * 120); });
   }
 
-  /* ---------------- 榜单（随机榜为主 + 可筛选排行榜） ---------------- */
   function strength(c) { return (c.reports || []).length * 2 + metooOfCompany(c) / 20; }
   function strengthOfSet(list) {
     var max = 1;
@@ -146,7 +146,7 @@
     return arr;
   }
   function pickRandom(n) {
-    // 随机榜：权重与"记录密度"相关，但不完全按排名，保证轮换可见
+
     var pool = D.companies.slice();
     var picked = [];
     while (picked.length < Math.min(n, pool.length)) {
@@ -213,7 +213,6 @@
     }).join('');
   }
 
-  /* ---------------- 同问（上下箭头） ---------------- */
   function loadVotes() {
     try { voteStore = JSON.parse(localStorage.getItem(VOTE_KEY) || '{}') || {}; }
     catch (e) { voteStore = {}; }
@@ -246,12 +245,12 @@
     var prev = Number(cntEl.textContent) || 0;
     cntEl.textContent = value;
     cntEl.classList.remove('bump');
-    void cntEl.offsetWidth;                  // 触发重排以重放动画
+    void cntEl.offsetWidth;
     cntEl.classList.add('bump');
     box.querySelectorAll('.arrow').forEach(function (a) {
       a.classList.toggle('on', Number(a.getAttribute('data-dir')) === next);
     });
-    // 同步其他位置同一 key 的计数
+
     $$('.vote[data-vote="' + key + '"]').forEach(function (other) {
       if (other === box) return;
       other.querySelector('.cnt').textContent = value;
@@ -268,7 +267,6 @@
     renderList('random-list-m', randomPool.slice(), false);
   }
 
-  /* ---------------- 搜索 ---------------- */
   function matches(c, r) {
     if (state.cat && r.category !== state.cat) return false;
     if (state.city && c.city !== state.city) return false;
@@ -336,7 +334,6 @@
     }).join('');
   }
 
-  /* ---------------- URL 同步 ---------------- */
   function readUrl() {
     var p = new URLSearchParams(location.search);
     state.q = p.get('q') || '';
@@ -358,7 +355,6 @@
     try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '')); } catch (e) { /* file:// 忽略 */ }
   }
 
-  /* ---------------- 地图（ECharts + 官方 GeoJSON，失败降级） ---------------- */
   var chart = null, mapReady = false;
 
   function loadScript(urls, cb) {
@@ -387,18 +383,28 @@
 
   function provData() {
     var prov = provinceStats();
-    var maxRep = 0;
-    Object.keys(prov).forEach(function (k) { maxRep = Math.max(maxRep, prov[k].reports); });
-    return Object.keys(prov).map(function (k) {
+    var keys = Object.keys(prov);
+    // 排名驱动归一化：颜色表示相对密度，各档颜色都会出现
+    var ranked = keys.slice().sort(function (a, b) {
+      return (prov[a].reports - prov[b].reports) || (prov[a].companies - prov[b].companies);
+    });
+    var scoreOf = {};
+    ranked.forEach(function (k, i) { scoreOf[k] = ranked.length > 1 ? i / (ranked.length - 1) : 1; });
+    return keys.map(function (k) {
       var s = prov[k];
-      var score = maxRep ? (s.reports / maxRep) : 0;    // 越密（记录越多）越红
       return {
         name: k, value: s.reports, density: s.density, companies: s.companies,
-        metoo: s.metoo, score: score, adcode: s.adcode,
-        cities: s.cities, color: heatColor(score)
+        metoo: s.metoo, score: scoreOf[k], adcode: s.adcode,
+        cities: s.cities, color: heatColor(scoreOf[k])
       };
     }).sort(function (a, b) { return b.value - a.value; });
   }
+
+  /* 二次元配色：霓虹描边 + 冷色梯度，越密越暖 */
+  var ANIME_STOPS = ['#0b1026', '#1b2a6b', '#2b5fd9', '#37c9e6', '#8be9c0', '#ffe066', '#ff9f45', '#ff4d6d', '#c026d3'];
+  var ANIME_LABELS = ['无记录', '极稀', '很稀', '较稀', '一般', '较多', '密集', '很密', '最密'];
+  var ANIME_BORDER = '#7de3ff';
+  var ANIME_NEON = '#ff5ec8';
 
   function initMap() {
     var tech = D.tech && D.tech.map_library ? D.tech.map_library : {};
@@ -433,10 +439,9 @@
   function renderLegend() {
     var el = $('map-legend');
     if (!el) return;
-    var stops = ['#ffffff', '#dbeafe', '#93c5fd', '#fde68a', '#fb923c', '#ef4444', '#7f1d1d'];
-    var labels = ['无记录', '很少', '较少', '一般', '较多', '密集', '最密'];
-    el.innerHTML = stops.map(function (c, i) {
-      return '<span class="swatch" style="background:' + c + '"></span><span>' + labels[i] + '</span>';
+    el.innerHTML = ANIME_STOPS.map(function (c, i) {
+      return '<span class="swatch" style="background:' + c + ';box-shadow:0 0 6px ' + c + '"></span>' +
+        '<span>' + ANIME_LABELS[i] + '</span>';
     }).join('') + '<span style="margin-left:8px">（按“每家公司平均被举报数”着色）</span>';
   }
 
@@ -447,53 +452,79 @@
     var data = provData();
     var opt = {
       backgroundColor: 'transparent',
+      textStyle: { fontFamily: '"Yu Gothic", "Noto Sans SC", "Microsoft YaHei", sans-serif' },
       tooltip: {
         trigger: 'item',
-        backgroundColor: 'rgba(28,16,19,.92)', borderColor: '#7f1d1d', borderWidth: 0,
-        textStyle: { color: '#fee2e2', fontSize: 12 },
+        backgroundColor: 'rgba(10,14,34,.9)', borderColor: ANIME_BORDER, borderWidth: 1,
+        padding: [9, 12], extraCssText: 'border-radius:10px;box-shadow:0 0 16px rgba(125,227,255,.45);backdrop-filter:blur(4px)',
+        textStyle: { color: '#e8f6ff', fontSize: 12 },
         formatter: function (p) {
-          if (!p.data) return '<b>' + p.name + '</b><br>暂无记录';
+          if (!p.data || !p.data.raw) return '<b>' + p.name + '</b><br><span style="color:#96a8d9">暂无记录</span>';
           var d = p.data;
           var cities = (d.cities || []).slice(0, 4).map(function (x) { return x.city + '(' + x.n + ')'; }).join('、');
-          return '<b>' + p.name + '</b><br>' +
+          return '<b style="color:' + ANIME_BORDER + '">' + p.name + '</b><br>' +
             '记录数：' + d.value + '<br>' +
             '主体数：' + d.companies + '<br>' +
             '每主体平均：' + d.density.toFixed(2) + '<br>' +
             '同问：' + d.metoo +
-            (cities ? '<br>主要城市：' + cities : '');
+            (cities ? '<br><span style="color:#96a8d9">主要城市：' + cities + '</span>' : '');
         }
-      },
-      visualMap: {
-        type: 'continuous', min: 0, max: 1, left: 12, bottom: 18, calculable: true,
-        orient: 'horizontal', itemWidth: 12, itemHeight: 110,
-        text: ['密（红）', '稀（蓝）'], textStyle: { color: '#8a6b70', fontSize: 11 },
-        inRange: { color: ['#ffffff', '#dbeafe', '#93c5fd', '#fde68a', '#fb923c', '#ef4444', '#7f1d1d'] }
       },
       series: [{
         type: 'map', map: 'china', roam: true, zoom: 1.16,
         scaleLimit: { min: 0.8, max: 8 },
         selectedMode: false,
         label: {
-          show: true, color: '#3f2b30', fontSize: 9,
+          show: true, color: '#cfe8ff', fontSize: 9,
+          fontFamily: '"Yu Gothic", "Noto Sans SC", sans-serif',
+          textShadowColor: 'rgba(10,14,34,.95)', textShadowBlur: 3,
           formatter: function (p) { return p.name.replace(/省|市|自治区|回族|维吾尔|壮族|特别行政区/g, ''); }
         },
-        itemStyle: { borderColor: '#e8c9cb', borderWidth: .6, areaColor: '#ffffff' },
-        emphasis: {
-          label: { show: true, color: '#fff', fontWeight: 'bold' },
-          itemStyle: { areaColor: '#b91c1c', borderColor: '#fff', borderWidth: 1 }
+        itemStyle: {
+          borderColor: ANIME_BORDER, borderWidth: 0.6, borderType: 'solid',
+          areaColor: '#0b1026',
+          shadowColor: 'rgba(125,227,255,.55)', shadowBlur: 8, shadowOffsetY: 1
         },
-        select: { label: { color: '#fff' }, itemStyle: { areaColor: '#58120f' } },
+        emphasis: {
+          label: { show: true, color: '#ffffff', fontSize: 11, fontWeight: 'bold', textShadowColor: ANIME_NEON, textShadowBlur: 8 },
+          itemStyle: {
+            areaColor: ANIME_NEON, borderColor: '#ffffff', borderWidth: 1.2,
+            shadowColor: ANIME_NEON, shadowBlur: 18
+          }
+        },
+        select: {
+          label: { color: '#ffffff', fontWeight: 'bold' },
+          itemStyle: { areaColor: '#ff9f45', borderColor: ANIME_NEON, borderWidth: 1.2, shadowColor: ANIME_NEON, shadowBlur: 16 }
+        },
         data: data.map(function (d) {
-          return { name: d.name, value: d.score, raw: d, density: d.density, companies: d.companies, metoo: d.metoo, cities: d.cities };
+          var c = heatColor(d.score);
+          return {
+            name: d.name, value: d.score, raw: d, density: d.density, companies: d.companies,
+            metoo: d.metoo, cities: d.cities,
+            itemStyle: {
+              areaColor: c,
+              borderColor: ANIME_BORDER,
+              borderWidth: 0.6,
+              shadowColor: c === ANIME_STOPS[0] ? 'rgba(125,227,255,.35)' : c,
+              shadowBlur: d.score > 0.55 ? 14 : 8
+            },
+            emphasis: {
+              itemStyle: {
+                areaColor: ANIME_NEON, borderColor: '#ffffff', borderWidth: 1.2,
+                shadowColor: ANIME_NEON, shadowBlur: 20
+              }
+            }
+          };
         })
       }],
-      animationDuration: 900,
-      animationEasing: 'cubicOut'
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 500
     };
-    chart.setOption(opt);
+    chart.setOption(opt, true);
 
     chart.on('click', function (p) {
-      if (!p.name || !p.data) return;
+      if (!p.name || !p.data || !p.data.raw) return;
       state.province = (state.province === p.name) ? '' : p.name;
       state.boardFilter = state.province ? 'province' : 'all';
       renderBoardFilters(); renderBoard(); renderResults();
@@ -521,7 +552,6 @@
     }).join('') || '<p class="muted">暂无省级数据</p>';
   }
 
-  /* ---------------- 弹层（含申诉公示） ---------------- */
   function openCompany(cid) {
     var c = D.companies.filter(function (x) { return x.id === Number(cid); })[0];
     if (!c) return;
@@ -559,7 +589,6 @@
     $('modal').classList.remove('hidden');
   }
 
-  /* ---------------- 表单：信用代码校验 / 提交 / 申诉 ---------------- */
   var CODE_RE = /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/;
   function checkCredit(input, hint) {
     var v = (input.value || '').trim().toUpperCase();
@@ -630,14 +659,15 @@
         msg.className = 'validmsg error';
         return;
       }
-      // 校验位：示例数据不一定满足真实算法，因此只提示不拦截
-      if (creditChecksum(code)) {
-        msg.textContent = '提交成功（演示）：信用代码校验位正确';
-        msg.className = 'validmsg ok';
-      } else {
-        msg.textContent = '已提交（演示）：信用代码校验位与真实算法不一致，请核对是否抄错';
-        msg.className = 'validmsg warn';
+      if (data.video && !/(bilibili\.com|douyin\.com|kuaishou\.com|channels\.weixin\.qq\.com)/i.test(data.video)) {
+        msg.textContent = '视频链接只接受 B站 / 抖音 / 快手 / 视频号';
+        msg.className = 'validmsg error';
+        return;
       }
+
+      var tip = creditChecksum(code) ? '' : '（信用代码校验位与真实算法不一致，请核对是否抄错）';
+      msg.textContent = '上传成功，已直接发布，本站不设人工审核' + tip;
+      msg.className = tip ? 'validmsg warn' : 'validmsg ok';
       addLocalReport(data);
     });
 
@@ -652,6 +682,11 @@
         msg.className = 'validmsg error';
         return;
       }
+      if ((data.reason || '').trim().length < 10) {
+        msg.textContent = '申诉理由至少 10 个字，并注明可核验的凭证类型';
+        msg.className = 'validmsg error';
+        return;
+      }
       var target = D.companies.filter(function (c) {
         return (c.credit_code || '').toUpperCase() === data.credit_code.toUpperCase() ||
           c.name === data.company;
@@ -661,7 +696,7 @@
         target.appeal.status = 'pending';
         target.appeal.count = (target.appeal.count || 0) + 1;
         target.appeal.latest = data.reason.slice(0, 120);
-        msg.textContent = '申诉已提交（演示）：已在「' + target.name + '」的详情页顶部与列表中标红公示';
+        msg.textContent = '申诉已提交：平台审核后会在「' + target.name + '」详情页公示结论（上传内容免审，申诉需要审核）';
         msg.className = 'validmsg ok';
         renderResults(); renderBoard(); renderStats();
       } else {
@@ -669,10 +704,16 @@
         msg.className = 'validmsg warn';
       }
       f.reset();
+      loadAppealCaptcha();
     });
   }
+  function loadAppealCaptcha() {
+    var el = $('appealCaptcha');
+    if (!el) return;
+    el.textContent = '静态演示站不校验验证码';
+  }
   function addLocalReport(d) {
-    // 演示用：只存本地，不落库
+
     try {
       var key = 'job-radar-local-submits';
       var arr = JSON.parse(localStorage.getItem(key) || '[]');
@@ -681,7 +722,6 @@
     } catch (e) { /* 隐私模式忽略 */ }
   }
 
-  /* ---------------- 渲染杂项 ---------------- */
   function renderChips() {
     var used = {};
     allReports().forEach(function (x) { used[x.r.category] = 1; });
@@ -733,12 +773,9 @@
     $('map').classList.toggle('hidden', !isMap);
     if (isMap && mapReady) {
       setTimeout(function () { if (chart) chart.resize(); }, 60);
-    } else if (isMap && !mapReady && !$('map-fallback').classList.contains('hidden')) {
-      /* 已降级，保持网格 */
     }
   }
 
-  /* ---------------- 事件 ---------------- */
   function bind() {
     var t = null;
     $('q').addEventListener('input', function (e) {
@@ -808,6 +845,9 @@
       if (e.key === '/' && document.activeElement !== $('q')) { e.preventDefault(); $('q').focus(); }
     });
     window.addEventListener('resize', function () { if (chart) chart.resize(); });
+    window.addEventListener('load', function () {
+      setTimeout(function () { if (chart) chart.resize(); }, 120);
+    });
     if ($('mapZoomIn')) $('mapZoomIn').addEventListener('click', function () { zoomMap(1.25); });
     if ($('mapZoomOut')) $('mapZoomOut').addEventListener('click', function () { zoomMap(0.8); });
     if ($('mapReset')) $('mapReset').addEventListener('click', function () {
@@ -823,7 +863,6 @@
     chart.setOption({ series: [{ zoom: mapZoom }] });
   }
 
-  /* ---------------- 启动 ---------------- */
   readUrl();
   loadVotes();
   fetch('./data/companies.json', { cache: 'no-cache' })
@@ -849,7 +888,7 @@
       clearInterval(randomTimer);
       randomTimer = setInterval(function () { refreshRandom(true); }, 10000);
       initMap();
-      // 若 3 秒内地图库还没就绪，先给出网格兜底，避免空白
+
       setTimeout(function () { if (!mapReady && !window.echarts) fallbackGrid('加载超时'); }, 6000);
     })
     .catch(function (err) {
