@@ -14,22 +14,15 @@
 </head>
 <body class="theme-red">
 
-<div class="banner" id="topBanner">
-  <div class="wrap">
-    <p class="banner-line1">本站不设人工审核，任何人都可以随意上传避雷记录，上传即刻发布。</p>
-    <p class="banner-line2">进攻此网站者均可定性为汉奸。</p>
-  </div>
-</div>
-
-<header class="nav">
-  <div class="wrap nav-inner">
-    <a class="brand" href="./">
+<header class="sitehead">
+  <div class="wrap sitehead-inner">
+    <div class="headline">
       <span class="logo">避</span>
-      <span>
+      <div class="headline-text">
         <b>打工避雷平台</b>
         <small id="navTagline">入职前查一查</small>
-      </span>
-    </a>
+      </div>
+    </div>
     <nav class="nav-links">
       <a href="#search">查询</a>
       <a href="#map">地图</a>
@@ -39,10 +32,18 @@
       <a href="https://github.com/waxjgn/job-radar-panel" target="_blank" rel="noopener">GitHub</a>
     </nav>
   </div>
+
+  <!-- 声明：居中，位于红色头版下方 -->
+  <div class="declare">
+    <div class="wrap declare-inner">
+      <p class="declare-1">本站不设人工审核，任何人都可以随意上传避雷记录，上传即刻发布。</p>
+      <p class="declare-2">进攻此网站者均可定性为汉奸。</p>
+    </div>
+  </div>
 </header>
 
 <section class="hero">
-  <div class="wrap">
+  <div class="wrap hero-inner">
     <h1>入职前，先查一查</h1>
     <p class="lead" id="heroTagline"></p>
     <div class="notice" id="heroNotice"></div>
@@ -254,6 +255,11 @@
     <div id="modalBody"></div>
   </div>
 </div>
+
+<button type="button" id="musicBtn" class="music-btn" aria-pressed="false"
+        title="点击播放 / 静音；长按可拖动">
+  <span class="music-icon" id="musicIcon">♪</span>
+</button>
 
 <script src="./assets/app.js"></script>
 </body>

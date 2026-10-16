@@ -863,8 +863,183 @@
     chart.setOption({ series: [{ zoom: mapZoom }] });
   }
 
+  /* ---------------- 右下角音符：播放 / 静音 + 长按拖动 ---------------- */
+  var audio = { ctx: null, bus: null, timer: null, step: 0, playing: false };
+  var NOTE_Hz = {
+    C4: 261.63, D4: 293.66, E4: 329.63, G4: 392.00, A4: 440.00,
+    C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880.00
+  };
+  var LEAD = ['E4', 'G4', 'A4', 'C5', 'A4', 'G4', 'E4', 'D4',
+              'E4', 'G4', 'C5', 'E5', 'D5', 'C5', 'A4', 'G4'];
+  var BASS = ['C4', 'C4', 'A4', 'A4', 'E4', 'E4', 'G4', 'G4',
+              'C4', 'C4', 'A4', 'A4', 'D4', 'D4', 'G4', 'G4'];
+
+  function ensureAudio() {
+    if (audio.ctx) {
+      if (audio.ctx.state === 'suspended') { audio.ctx.resume(); }
+      return audio.ctx;
+    }
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    audio.ctx = new AC();
+    audio.bus = audio.ctx.createGain();
+    audio.bus.gain.value = 0.16;
+    audio.bus.connect(audio.ctx.destination);
+    return audio.ctx;
+  }
+
+  function beep(freq, at, dur, type, peak) {
+    var osc = audio.ctx.createOscillator();
+    var env = audio.ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0.0001, at);
+    env.gain.exponentialRampToValueAtTime(peak, at + 0.02);
+    env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(env);
+    env.connect(audio.bus);
+    osc.start(at);
+    osc.stop(at + dur + 0.03);
+  }
+
+  function scheduleStep(step, at) {
+    var lead = NOTE_Hz[LEAD[step % LEAD.length]];
+    var bass = NOTE_Hz[BASS[step % BASS.length]];
+    beep(lead, at, 0.17, 'square', 0.22);
+    if (step % 2 === 0) { beep(bass / 2, at, 0.3, 'triangle', 0.3); }
+    if (step % 4 === 2) { beep(lead * 2, at + 0.09, 0.07, 'sine', 0.09); }
+  }
+
+  function tick() {
+    if (!audio.playing || !audio.ctx) return;
+    scheduleStep(audio.step, audio.ctx.currentTime + 0.08);
+    audio.step++;
+    audio.timer = setTimeout(tick, 230);
+  }
+
+  function musicStart() {
+    if (!ensureAudio()) return false;
+    audio.playing = true;
+    if (!audio.timer) tick();
+    syncMusicBtn();
+    return true;
+  }
+
+  function musicStop() {
+    audio.playing = false;
+    clearTimeout(audio.timer);
+    audio.timer = null;
+    syncMusicBtn();
+  }
+
+  function musicToggle() {
+    if (audio.playing) {
+      musicStop();
+      try { localStorage.setItem('job-radar-music', 'off'); } catch (e) {}
+    } else if (musicStart()) {
+      try { localStorage.setItem('job-radar-music', 'on'); } catch (e) {}
+    }
+    return audio.playing;
+  }
+
+  function syncMusicBtn() {
+    var btn = $('musicBtn');
+    if (!btn) return;
+    var icon = $('musicIcon');
+    btn.classList.toggle('playing', audio.playing);
+    btn.classList.toggle('muted', !audio.playing);
+    btn.setAttribute('aria-pressed', audio.playing ? 'true' : 'false');
+    if (icon) icon.textContent = audio.playing ? '♫' : '♪̸';
+    btn.title = audio.playing ? '正在播放：点击静音（长按可拖动）' : '已静音：点击播放（长按可拖动）';
+  }
+
+  function musicPos() {
+    try { return JSON.parse(localStorage.getItem('job-radar-music-pos') || 'null'); } catch (e) { return null; }
+  }
+  function musicSavePos(x, y) {
+    try { localStorage.setItem('job-radar-music-pos', JSON.stringify({ x: x, y: y })); } catch (e) {}
+  }
+  function musicApplyPos(x, y) {
+    var btn = $('musicBtn');
+    if (!btn) return null;
+    var w = btn.offsetWidth || 54, h = btn.offsetHeight || 54;
+    var cx = Math.min(Math.max(6, x), Math.max(6, window.innerWidth - w - 6));
+    var cy = Math.min(Math.max(6, y), Math.max(6, window.innerHeight - h - 6));
+    btn.style.left = cx + 'px';
+    btn.style.top = cy + 'px';
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
+    return { x: cx, y: cy };
+  }
+
+  function bindMusic() {
+    var btn = $('musicBtn');
+    if (!btn) return;
+    var pos = musicPos();
+    if (pos) musicApplyPos(pos.x, pos.y);
+    syncMusicBtn();
+
+    var pressStart = 0, dragging = false, moved = false;
+    var startX = 0, startY = 0, boxL = 0, boxT = 0;
+
+    btn.addEventListener('pointerdown', function (e) {
+      pressStart = Date.now();
+      dragging = false;
+      moved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      var r = btn.getBoundingClientRect();
+      boxL = r.left;
+      boxT = r.top;
+      try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+    });
+
+    btn.addEventListener('pointermove', function (e) {
+      if (!pressStart) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4) && Date.now() - pressStart > 260) {
+        dragging = true;
+        btn.classList.add('dragging');
+      }
+      if (dragging) {
+        moved = true;
+        musicApplyPos(boxL + dx, boxT + dy);
+      }
+    });
+
+    function end() {
+      if (dragging) {
+        var r = btn.getBoundingClientRect();
+        musicSavePos(r.left, r.top);
+      } else if (pressStart && !moved) {
+        musicToggle();
+      }
+      dragging = false;
+      pressStart = 0;
+      btn.classList.remove('dragging');
+    }
+    btn.addEventListener('pointerup', end);
+    btn.addEventListener('pointercancel', end);
+    btn.addEventListener('click', function (e) { e.preventDefault(); });
+
+    var saved = null;
+    try { saved = localStorage.getItem('job-radar-music'); } catch (e) {}
+    if (saved === 'on') {
+      syncMusicBtn();
+      window.addEventListener('pointerdown', function () { if (!audio.playing) musicStart(); }, { once: true });
+    }
+
+    window.addEventListener('resize', function () {
+      var r = btn.getBoundingClientRect();
+      var got = musicApplyPos(r.left, r.top);
+      if (got) musicSavePos(got.x, got.y);
+    });
+  }
+
   readUrl();
   loadVotes();
+  bindMusic();
   fetch('./data/companies.json', { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (json) {
